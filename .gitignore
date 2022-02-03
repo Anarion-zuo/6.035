@@ -1,0 +1,12 @@
+*.sw*
+
+/tests/
+/classes/
+/dist/
+
+!.idea
+.idea/*
+!.idea/runConfigurations
+
+out/
+*.iml
