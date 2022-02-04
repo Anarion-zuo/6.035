@@ -32,17 +32,6 @@
     <pathelement path="${classes}" />
   </path>
 
-  <!-- Build up a path structure for a classpath 
-       that includes the libraries and the existing classpath -->
-  <path id="libraries">
-    <pathelement location="${lib}" />
-    <fileset dir="${lib}">
-      <include name="**/*.jar" />
-      <include name="**/*.zip" />
-    </fileset>
-    <pathelement path="${java.class.path}" />
-  </path>
-
   <target name="init">
     <mkdir dir="${classes}" />
     <mkdir dir="${dist}" />
@@ -52,7 +41,6 @@
   <target name="compile" depends="init">
     <javac srcdir="${src}" destdir="${classes}"
            debug="on" includeantruntime="false">
-      <classpath refid="libraries" />
     </javac>
   </target>
 
