@@ -10,8 +10,6 @@
   <property name="classes" location="classes" />
   <!-- Jar directory -->
   <property name="dist"    location="dist"    />
-  <!-- Runtime libraries -->
-  <property name="lib"     location="lib"     />
   <!-- Binaries for tools, etc. -->
   <property name="bin"     location="bin"     />
   <!-- Directory containing tests -->
