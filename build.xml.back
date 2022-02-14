@@ -1,0 +1,60 @@
+<project name="Compiler" default="jar" basedir=".">
+
+  <property environment="env" />
+  <property name="base_package_dir" value="edu/mit/compilers" />
+  <property name="base_package_name" value="edu.mit.compilers" />
+
+  <!-- Manually generated java files -->
+  <property name="src"     location="src"     />
+  <!-- Target Dir for compile -->
+  <property name="classes" location="classes" />
+  <!-- Jar directory -->
+  <property name="dist"    location="dist"    />
+  <!-- Binaries for tools, etc. -->
+  <property name="bin"     location="bin"     />
+  <!-- Directory containing tests -->
+  <property name="tests"   location="tests"   />
+
+  <!-- Build up a path structure for a classpath 
+       that includes the binaries (jars) in bin/ and 
+       the existing classpath.  Not used now, 
+       because the jflex and cup task define their own cp, 
+       but could come in handly later. -->
+  <path id="binaries">
+    <pathelement location="${bin}" />
+    <fileset dir="${bin}">
+      <include name="**/*.jar" />
+      <include name="**/*.zip" />
+    </fileset>
+    <pathelement path="${java.class.path}" />
+    <pathelement path="${classes}" />
+  </path>
+
+  <target name="init">
+    <mkdir dir="${classes}" />
+    <mkdir dir="${dist}" />
+  </target>
+
+
+  <target name="compile" depends="init">
+    <javac srcdir="${src}" destdir="${classes}"
+           debug="on" includeantruntime="false">
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile">
+    <jar destfile="${dist}/Compiler.jar" basedir="${classes}">
+      <manifest>
+        <attribute name="Main-Class" value="${base_package_name}.Main" />
+      </manifest>
+    </jar>
+  </target>
+
+ <!-- to clean, delete everything in the autogen, classes, and dist
+  directory -->
+  <target name="clean">
+     <delete dir="${classes}" />
+     <delete dir="${dist}" />
+  </target>
+
+</project>
