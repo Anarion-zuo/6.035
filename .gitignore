@@ -3,10 +3,14 @@
 /tests/
 /classes/
 /dist/
+/bin/
 
-!.idea
+.idea
 .idea/*
-!.idea/runConfigurations
+.idea/runConfigurations
+
+.classpath
+.project
 
 out/
 *.iml
