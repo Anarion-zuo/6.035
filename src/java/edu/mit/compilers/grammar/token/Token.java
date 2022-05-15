@@ -1,6 +1,6 @@
 // YOU CAN MODIFY ANYTHING IN THIS FILE, THIS IS JUST A SUGGESTED CLASS
 
-package edu.mit.compilers.grammar;
+package edu.mit.compilers.grammar.token;
 
 public class Token {
 

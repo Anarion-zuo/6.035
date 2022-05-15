@@ -1,6 +1,8 @@
 // YOU CAN MODIFY ANYTHING IN THIS FILE, THIS IS JUST A SUGGESTED CLASS
 
 package edu.mit.compilers.grammar;
+import edu.mit.compilers.grammar.token.Token;
+
 import java.io.InputStream;
 
 

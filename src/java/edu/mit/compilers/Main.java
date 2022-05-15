@@ -2,6 +2,7 @@ package edu.mit.compilers;
 
 import java.io.*;
 import edu.mit.compilers.grammar.*;
+import edu.mit.compilers.grammar.token.Token;
 import edu.mit.compilers.tools.CLI;
 import edu.mit.compilers.tools.CLI.Action;
 

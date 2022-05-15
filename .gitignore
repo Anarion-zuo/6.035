@@ -4,6 +4,7 @@
 /classes/
 /dist/
 /bin/
+/target/
 
 .idea
 .idea/*
