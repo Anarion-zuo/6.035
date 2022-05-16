@@ -48,6 +48,10 @@ public class ContextFreeSymbol {
         return sentences.get(index);
     }
 
+    public void afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence) {
+
+    }
+
     public MatchInfo match(ContextFreeSentence.Iterator symbolIterator) {
         if (!symbolIterator.hasNext()) {
             return new MatchInfo(null, null, 0);
@@ -55,7 +59,11 @@ public class ContextFreeSymbol {
         ContextFreeSentence.Iterator resultNext = null;
         ContextFreeSentence resultSentence = null;
         int resultCount = 0;
-        for (var sentence : sentences) {
+        int resultSentenceIndex = -1;
+        var sentencesIterator = sentences.listIterator();
+        while (sentencesIterator.hasNext()) {
+            int sentenceIndex = sentencesIterator.nextIndex();
+            var sentence = sentencesIterator.next();
             System.out.print("Matching: trying sentence " + sentence.toString() + "... ");
             ContextFreeSentence.Iterator curIterator = null;
             try {
@@ -84,12 +92,14 @@ public class ContextFreeSymbol {
                     resultNext = curIterator;
                     resultSentence = sentence;
                     resultCount = localDifference;
+                    resultSentenceIndex = sentenceIndex;
                 }
                 System.out.printf("matched count %d!\n", localDifference);
             } else {
                 System.out.println("failed!");
             }
         }
+        afterMatch(resultSentenceIndex, resultSentence);
         return new MatchInfo(resultNext, resultSentence, resultCount);
     }
 

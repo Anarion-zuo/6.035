@@ -23,12 +23,11 @@ import java.util.*;
  * BracketExpr := ( Expr )
  *
  * This causes left recursion:
+ * ClosureExpr := AtomExpr *
+ * Therefore it is rewritten to this:
  * ClosureExpr := char *
  *             := BracketExpr *
- * Therefore it is rewritten to this:
- * Closure1 := Closure2
- * Closure2 := * Closure2
- *          := epsilon
+ *      where a** is not allowed
  */
 public class RegularSymbolUtil {
     private Expr exprNode = new Expr();
@@ -36,7 +35,7 @@ public class RegularSymbolUtil {
     private AlternateExpr alternateExprNode = new AlternateExpr();
     private BracketExpr bracketExprNode = new BracketExpr();
     //private ClosureExpr closureExprNode = new ClosureExpr();
-    private Closure1Expr closureNode = new Closure1Expr();
+    private ClosureExpr closureNode = new ClosureExpr();
     //private Closure2Expr closure2Node = new Closure2Expr();
     private EpsilonExpr epsilonExpr = new EpsilonExpr();
 
@@ -49,10 +48,10 @@ public class RegularSymbolUtil {
 
     public RegularSymbolUtil() {
         exprNode.addSentences(3);
-        exprNode.getSentence(0).addSymbol(atomExprNode);
-        exprNode.getSentence(1).addSymbol(alternateExprNode);
-        exprNode.getSentence(2).addSymbol(atomExprNode);
-        exprNode.getSentence(2).addSymbol(exprNode);
+        exprNode.getSentence(Expr.atomSentenceIndex).addSymbol(atomExprNode);
+        exprNode.getSentence(Expr.alternateSentenceIndex).addSymbol(alternateExprNode);
+        exprNode.getSentence(Expr.atomListSentenceIndex).addSymbol(atomExprNode);
+        exprNode.getSentence(Expr.atomListSentenceIndex).addSymbol(exprNode);
 
         atomExprNode.addSentences(3);
         atomExprNode.getSentence(0).addSymbol(wildcardCharExpr);
@@ -75,10 +74,6 @@ public class RegularSymbolUtil {
         closureNode.getSentence(0).addSymbol(starCharExpr);
         closureNode.getSentence(1).addSymbol(bracketExprNode);
         closureNode.getSentence(1).addSymbol(starCharExpr);
-        //closure2Node.addSentences(2);
-        //closure2Node.getSentence(0).addSymbol(new CharExpr('*'));
-        //closure2Node.getSentence(0).addSymbol(closure2Node);
-        //closure2Node.getSentence(1).addSymbol(epsilonExpr);
     }
 
     public boolean isFormatCorrect(char[] input) {
@@ -91,9 +86,17 @@ public class RegularSymbolUtil {
     }
 
     class Expr extends ContextFreeSymbol {
+        static final int atomSentenceIndex = 0;
+        static final int alternateSentenceIndex = 1;
+        static final int atomListSentenceIndex = 2;
         @Override
         public String toString() {
             return "Expr";
+        }
+
+        @Override
+        public void afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence) {
+
         }
     }
 
@@ -118,17 +121,10 @@ public class RegularSymbolUtil {
         }
     }
 
-    class Closure1Expr extends ContextFreeSymbol {
+    class ClosureExpr extends ContextFreeSymbol {
         @Override
         public String toString() {
-            return "Closure1";
-        }
-    }
-
-    class Closure2Expr extends ContextFreeSymbol {
-        @Override
-        public String toString() {
-            return "Closure2";
+            return "Closure";
         }
     }
 
