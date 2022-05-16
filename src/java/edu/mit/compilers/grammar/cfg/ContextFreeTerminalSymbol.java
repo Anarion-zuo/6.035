@@ -15,9 +15,9 @@ public class ContextFreeTerminalSymbol extends ContextFreeSymbol {
         if (symbolIterator.hasNext()) {
             var rhs = symbolIterator.next();
             if (this.equals(rhs)) {
-                return new MatchInfo(symbolIterator, new ContextFreeSentence(Arrays.asList(this)));
+                return new MatchInfo(symbolIterator, new ContextFreeSentence(Arrays.asList(this)), 1);
             }
         }
-        return new MatchInfo(null, null);
+        return new MatchInfo(null, null, 0);
     }
 }

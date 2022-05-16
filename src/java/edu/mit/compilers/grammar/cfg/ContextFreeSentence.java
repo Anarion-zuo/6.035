@@ -1,12 +1,17 @@
 package edu.mit.compilers.grammar.cfg;
 
+import javax.naming.OperationNotSupportedException;
 import java.util.*;
 
 public class ContextFreeSentence {
     private final List<ContextFreeSymbol> symbols;
 
+    public ContextFreeSentence() {
+        this.symbols = new ArrayList<>();
+    }
+
     public ContextFreeSentence(List<ContextFreeSymbol> symbols) {
-        this.symbols = symbols;
+        this.symbols = new ArrayList<>(symbols);
     }
 
     public ContextFreeSentence(ContextFreeSymbol... symbols) {
@@ -27,6 +32,10 @@ public class ContextFreeSentence {
 
     public void setSymbol(int index, ContextFreeSymbol symbol) {
         symbols.set(index, symbol);
+    }
+
+    public void addSymbol(ContextFreeSymbol symbol) {
+        symbols.add(symbol);
     }
 
     public class Iterator implements java.util.Iterator<ContextFreeSymbol> {
@@ -58,6 +67,13 @@ public class ContextFreeSentence {
             int oldIndex = index;
             index--;
             return symbols.get(oldIndex);
+        }
+
+        public int difference(Iterator rhs) throws OperationNotSupportedException {
+            if (getClass() != rhs.getClass()) {
+                throw new OperationNotSupportedException();
+            }
+            return this.index - rhs.index;
         }
     }
 
