@@ -32,6 +32,11 @@ public class ContextFreeSymbolTest {
             }
             return ((CharSymbol) obj).ch == ch;
         }
+
+        @Override
+        protected Object getTerminalObject() {
+            return ch;
+        }
     }
 
     class MultipleTerminalSymbol extends ContextFreeSymbol {

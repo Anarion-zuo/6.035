@@ -1,23 +1,28 @@
 package edu.mit.compilers.grammar.cfg;
 
-import java.util.ArrayList;
+import java.security.InvalidAlgorithmParameterException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ListIterator;
 
-public class ContextFreeTerminalSymbol extends ContextFreeSymbol {
+public abstract class ContextFreeTerminalSymbol extends ContextFreeSymbol {
     public ContextFreeTerminalSymbol() {
         super((List<ContextFreeSentence>) null);
     }
+
+    protected abstract Object getTerminalObject();
     
     @Override
     public MatchInfo match(ContextFreeSentence.Iterator symbolIterator) {
         if (symbolIterator.hasNext()) {
-            var rhs = symbolIterator.next();
+            var rhs = (ContextFreeTerminalSymbol) symbolIterator.next();
             if (this.equals(rhs)) {
-                return new MatchInfo(symbolIterator, new ContextFreeSentence(Arrays.asList(this)), 1);
+                try {
+                    return new MatchInfo(symbolIterator, new ContextFreeSentence(List.of(this)), 1, afterMatch(-1, null, List.of(rhs.getTerminalObject())));
+                } catch (InvalidAlgorithmParameterException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
-        return new MatchInfo(null, null, 0);
+        return new MatchInfo(null, null, 0, null);
     }
 }

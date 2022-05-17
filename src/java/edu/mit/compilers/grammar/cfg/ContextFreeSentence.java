@@ -30,6 +30,10 @@ public class ContextFreeSentence {
         return builder.toString();
     }
 
+    public int length() {
+        return symbols.size();
+    }
+
     public void setSymbol(int index, ContextFreeSymbol symbol) {
         symbols.set(index, symbol);
     }

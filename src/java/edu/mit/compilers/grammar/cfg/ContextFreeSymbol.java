@@ -1,6 +1,7 @@
 package edu.mit.compilers.grammar.cfg;
 
 import javax.naming.OperationNotSupportedException;
+import java.security.InvalidAlgorithmParameterException;
 import java.util.*;
 
 public class ContextFreeSymbol {
@@ -10,11 +11,13 @@ public class ContextFreeSymbol {
         public final ContextFreeSentence.Iterator nextIterator;
         public final ContextFreeSentence matchedSentence;
         public final int symbolCount;
+        public final Object object;
 
-        public MatchInfo(ContextFreeSentence.Iterator nextIterator, ContextFreeSentence matchedSentence, int symbolCount) {
+        public MatchInfo(ContextFreeSentence.Iterator nextIterator, ContextFreeSentence matchedSentence, int symbolCount, Object object) {
             this.nextIterator = nextIterator;
             this.matchedSentence = matchedSentence;
             this.symbolCount = symbolCount;
+            this.object = object;
         }
     }
 
@@ -48,19 +51,20 @@ public class ContextFreeSymbol {
         return sentences.get(index);
     }
 
-    public void afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence) {
-
+    public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childObjects) throws InvalidAlgorithmParameterException {
+        return null;
     }
 
     public MatchInfo match(ContextFreeSentence.Iterator symbolIterator) {
         if (!symbolIterator.hasNext()) {
-            return new MatchInfo(null, null, 0);
+            return new MatchInfo(null, null, 0, null);
         }
         ContextFreeSentence.Iterator resultNext = null;
         ContextFreeSentence resultSentence = null;
         int resultCount = 0;
         int resultSentenceIndex = -1;
         var sentencesIterator = sentences.listIterator();
+        Object resultObj = null;
         while (sentencesIterator.hasNext()) {
             int sentenceIndex = sentencesIterator.nextIndex();
             var sentence = sentencesIterator.next();
@@ -72,9 +76,11 @@ public class ContextFreeSymbol {
                 throw new RuntimeException(e);
             }
             var sentenceIterator = sentence.iterator();
+            List<Object> matchedObjects = new LinkedList<>();
             while (sentenceIterator.hasNext()) {
                 var symbol = sentenceIterator.next();
                 var info = symbol.match(curIterator);
+                matchedObjects.add(info.object);
                 if (info.nextIterator == null) {
                     curIterator = null;
                     break;
@@ -93,21 +99,25 @@ public class ContextFreeSymbol {
                     resultSentence = sentence;
                     resultCount = localDifference;
                     resultSentenceIndex = sentenceIndex;
+                    try {
+                        resultObj = afterMatch(resultSentenceIndex, resultSentence, matchedObjects);
+                    } catch (InvalidAlgorithmParameterException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
                 System.out.printf("matched count %d!\n", localDifference);
             } else {
                 System.out.println("failed!");
             }
         }
-        afterMatch(resultSentenceIndex, resultSentence);
-        return new MatchInfo(resultNext, resultSentence, resultCount);
+        return new MatchInfo(resultNext, resultSentence, resultCount, resultObj);
     }
 
     public MatchInfo matchExaust(ContextFreeSentence.Iterator symbolIterator) {
         while (true) {
             var info  = match(symbolIterator);
             if (info.nextIterator == null) {
-                return new MatchInfo(null, null, 0);
+                return new MatchInfo(null, null, 0, null);
             }
             if (!info.nextIterator.hasNext()) {
                 return info;
