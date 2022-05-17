@@ -76,6 +76,11 @@ public class RegularGraph {
             return nextCount;
         }
 
+        public boolean hasMatch() {
+            moveNodesThroughEpsilon();
+            return nodes.contains(dest);
+        }
+
         public boolean hasNext() {
             moveNodesThroughEpsilon();
             return !(nodes.size() == 1 && nodes.contains(dest));
