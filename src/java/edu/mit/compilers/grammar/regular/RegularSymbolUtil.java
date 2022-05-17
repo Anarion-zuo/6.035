@@ -5,6 +5,7 @@ import edu.mit.compilers.grammar.cfg.ContextFreeSentence;
 import edu.mit.compilers.grammar.cfg.ContextFreeSymbol;
 import edu.mit.compilers.grammar.cfg.ContextFreeTerminalSymbol;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.util.*;
 
 /**
@@ -76,66 +77,160 @@ public class RegularSymbolUtil {
         closureNode.getSentence(1).addSymbol(starCharExpr);
     }
 
-    public boolean isFormatCorrect(char[] input) {
+    public ContextFreeSymbol.MatchInfo rootMatchExaust(char[] input) {
         ContextFreeSentence inputStream = new ContextFreeSentence();
         for (char c : input) {
             inputStream.addSymbol(new CharExpr(c));
         }
-        var info = exprNode.matchExaust(inputStream.iterator());
+        return exprNode.matchExaust(inputStream.iterator());
+    }
+
+    public boolean isFormatCorrect(char[] input) {
+        var info = rootMatchExaust(input);
         return info.nextIterator != null;
     }
 
-    class Expr extends ContextFreeSymbol {
+    public Expr getExprNode() {
+        return exprNode;
+    }
+
+    public class Expr extends ContextFreeSymbol {
         static final int atomSentenceIndex = 0;
         static final int alternateSentenceIndex = 1;
         static final int atomListSentenceIndex = 2;
+
         @Override
         public String toString() {
             return "Expr";
         }
 
-        @Override
-        public void afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence) {
+        private Object onAtomList(RegularGraph atomGraph, RegularGraph rightGraph) {
+            // concat
+            var graph = new RegularGraph();
+            graph.breakSourceAndDest();
+            atomGraph.getDest().addNonDetermined(rightGraph.getSource());
+            rightGraph.getDest().addNonDetermined(graph.getDest());
+            graph.getSource().addNonDetermined(atomGraph.getSource());
+            return graph;
+        }
 
+        @Override
+        public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childObjects) throws InvalidAlgorithmParameterException {
+            switch (sentenceIndex) {
+                case atomSentenceIndex -> {
+                    assert childObjects.size() == 1;
+                    return childObjects.get(0);
+                }
+                case alternateSentenceIndex -> {
+                    assert childObjects.size() == 1;
+                    return childObjects.get(0);
+                }
+                case atomListSentenceIndex -> {
+                    assert childObjects.size() == 2;
+                    return onAtomList((RegularGraph) childObjects.get(0), (RegularGraph) childObjects.get(1));
+                }
+                default -> {
+                    throw new InvalidAlgorithmParameterException();
+                }
+            }
         }
     }
 
-    class AtomExpr extends ContextFreeSymbol {
+    public class AtomExpr extends ContextFreeSymbol {
         @Override
         public String toString() {
             return "AtomExpr";
         }
+
+        @Override
+        public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childObjects) throws InvalidAlgorithmParameterException {
+            assert childObjects.size() == 1;
+            return childObjects.get(0);
+        }
     }
 
-    class AlternateExpr extends ContextFreeSymbol {
+    public class AlternateExpr extends ContextFreeSymbol {
+        private static final int atomIndex = 0;
+        private static final int atomListIndex = 1;
+
         @Override
         public String toString() {
             return "AlternateExpr";
         }
+
+        public Object onAlterList(RegularGraph atomNode, RegularGraph listNode) {
+            RegularGraph graph = new RegularGraph();
+            graph.breakSourceAndDest();
+            graph.getSource().addNonDetermined(atomNode.getSource());
+            graph.getSource().addNonDetermined(listNode.getSource());
+            atomNode.getDest().addNonDetermined(graph.getDest());
+            listNode.getDest().addNonDetermined(graph.getDest());
+            return graph;
+        }
+
+        @Override
+        public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childObjects) throws InvalidAlgorithmParameterException {
+            switch (sentenceIndex) {
+                case atomIndex -> {
+                    assert childObjects.size() == 1;
+                    return childObjects.get(0);
+                }
+                case atomListIndex -> {
+                    assert childObjects.size() == 3;
+                    return onAlterList((RegularGraph) childObjects.get(0), (RegularGraph) childObjects.get(2));
+                }
+                default -> {
+                    throw new InvalidAlgorithmParameterException();
+                }
+            }
+        }
     }
 
-    class BracketExpr extends ContextFreeSymbol {
+    public class BracketExpr extends ContextFreeSymbol {
         @Override
         public String toString() {
             return "BracketExpr";
         }
+
+        @Override
+        public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childObjects) throws InvalidAlgorithmParameterException {
+            assert childObjects.size() == 3;
+            return childObjects.get(1);
+        }
     }
 
-    class ClosureExpr extends ContextFreeSymbol {
+    public class ClosureExpr extends ContextFreeSymbol {
         @Override
         public String toString() {
             return "Closure";
         }
+
+        @Override
+        public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childObjects) throws InvalidAlgorithmParameterException {
+            assert childObjects.size() == 2;
+            var closuredGraph = (RegularGraph) childObjects.get(0);
+            var graph = new RegularGraph();
+            // does not break source to dest here
+            closuredGraph.getDest().addNonDetermined(closuredGraph.getSource());
+            graph.getSource().addNonDetermined(closuredGraph.getSource());
+            closuredGraph.getDest().addNonDetermined(graph.getDest());
+            return graph;
+        }
     }
 
-    class EpsilonExpr extends ContextFreeEpsilonSymbol {
+    public class EpsilonExpr extends ContextFreeEpsilonSymbol {
         @Override
         public String toString() {
             return "EpsilonExpr";
         }
+
+        @Override
+        public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childObjects) throws InvalidAlgorithmParameterException {
+            return new RegularGraph();
+        }
     }
 
-    class CharExpr extends ContextFreeTerminalSymbol {
+    public class CharExpr extends ContextFreeTerminalSymbol {
         private final char ch;
 
         public CharExpr(char ch) {
@@ -147,6 +242,21 @@ public class RegularSymbolUtil {
             return "CharExpr{" +
                     ch +
                     '}';
+        }
+
+        @Override
+        protected Object getTerminalObject() {
+            return ch;
+        }
+
+        @Override
+        public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childObjects) throws InvalidAlgorithmParameterException {
+            assert childObjects.size() == 1;
+            var graph = new RegularGraph();
+            graph.breakSourceAndDest();
+            Character rhsCh = (Character) childObjects.get(0);
+            graph.getSource().addDetermined(rhsCh, graph.getDest());
+            return graph;
         }
 
         @Override
