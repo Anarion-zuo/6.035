@@ -52,7 +52,8 @@ public class RegularExprParseTest {
         Assert.assertFalse(regularSymbolUtil.isFormatCorrect(wrong1));
     }
 
-    private void contructionTestTemplate(char[] regex, char []input, boolean shouldMatch) {
+    private void contructionTestTemplate(String regexString, String inputString, boolean shouldMatch) {
+        char[] regex = regexString.toCharArray(), input = inputString.toCharArray();
         var info = regularSymbolUtil.rootMatchExaust(regex);
         Assert.assertTrue(regularSymbolUtil.isFormatCorrect(regex));
         RegularGraph graph = (RegularGraph) info.object;
@@ -76,38 +77,57 @@ public class RegularExprParseTest {
 
     @Test
     public void constructionTest() {
-        contructionTestTemplate("a".toCharArray(), "a".toCharArray(), true);
-        contructionTestTemplate("a".toCharArray(), "b".toCharArray(), false);
-        contructionTestTemplate("123456".toCharArray(), "123456".toCharArray(), true);
-        contructionTestTemplate("123456".toCharArray(), "1234567".toCharArray(), false);
-        contructionTestTemplate("123456".toCharArray(), "12".toCharArray(), false);
+        contructionTestTemplate("a", "a", true);
+        contructionTestTemplate("a", "b", false);
+        contructionTestTemplate("123456", "123456", true);
+        contructionTestTemplate("123456", "1234567", false);
+        contructionTestTemplate("123456", "12", false);
 
-        contructionTestTemplate("(123456)".toCharArray(), "123456".toCharArray(), true);
-        contructionTestTemplate("(123456)".toCharArray(), "1234567".toCharArray(), false);
-        contructionTestTemplate("(123456)".toCharArray(), "1234".toCharArray(), false);
+        contructionTestTemplate("(123456)", "123456", true);
+        contructionTestTemplate("(123456)", "1234567", false);
+        contructionTestTemplate("(123456)", "1234", false);
 
-        contructionTestTemplate("a|b".toCharArray(), "a".toCharArray(), true);
-        contructionTestTemplate("a|b".toCharArray(), "b".toCharArray(), true);
-        contructionTestTemplate("a|b".toCharArray(), "c".toCharArray(), false);
-        contructionTestTemplate("(ab)|b".toCharArray(), "ab".toCharArray(), true);
-        contructionTestTemplate("(ab)|b".toCharArray(), "b".toCharArray(), true);
-        contructionTestTemplate("(ab)|b".toCharArray(), "abc".toCharArray(), false);
-        contructionTestTemplate("(ab)|b|(cdefg)".toCharArray(), "cdefg".toCharArray(), true);
-        contructionTestTemplate("(ab)|b|(cdefg)".toCharArray(), "cd".toCharArray(), false);
+        contructionTestTemplate("a|b", "a", true);
+        contructionTestTemplate("a|b", "b", true);
+        contructionTestTemplate("a|b", "c", false);
+        contructionTestTemplate("(ab)|b", "ab", true);
+        contructionTestTemplate("(ab)|b", "b", true);
+        contructionTestTemplate("(ab)|b", "abc", false);
+        contructionTestTemplate("(ab)|b|(cdefg)", "cdefg", true);
+        contructionTestTemplate("(ab)|b|(cdefg)", "cd", false);
 
 
-        contructionTestTemplate("a*".toCharArray(), "a".toCharArray(), true);
-        contructionTestTemplate("a*".toCharArray(), "aa".toCharArray(), true);
-        contructionTestTemplate("a*".toCharArray(), "aaa".toCharArray(), true);
-        contructionTestTemplate("a*".toCharArray(), "aaaaaaaaaaaaaa".toCharArray(), true);
-        contructionTestTemplate("a*".toCharArray(), "aaaaaaaaafaaa".toCharArray(), false);
-        contructionTestTemplate("(abc)*".toCharArray(), "abc".toCharArray(), true);
-        contructionTestTemplate("(abc)*".toCharArray(), "abcabcabc".toCharArray(), true);
-        contructionTestTemplate("(abc)*".toCharArray(), "abcadcabc".toCharArray(), false);
+        contructionTestTemplate("a*", "a", true);
+        contructionTestTemplate("a*", "aa", true);
+        contructionTestTemplate("a*", "aaa", true);
+        contructionTestTemplate("a*", "aaaaaaaaaaaaaa", true);
+        contructionTestTemplate("a*", "aaaaaaaaafaaa", false);
+        contructionTestTemplate("(abc)*", "abc", true);
+        contructionTestTemplate("(abc)*", "abcabcabc", true);
+        contructionTestTemplate("(abc)*", "abcadcabc", false);
 
-        contructionTestTemplate("(abc)*|(k*)".toCharArray(), "kkkkkabc".toCharArray(), false);
-        contructionTestTemplate("(abc)*|(k*)".toCharArray(), "kkkkk".toCharArray(), true);
-        contructionTestTemplate("(abc)*|(k*)".toCharArray(), "abcabc".toCharArray(), true);
+        contructionTestTemplate("(abc)*|(k*)", "kkkkkabc", false);
+        contructionTestTemplate("(abc)*|(k*)", "kkkkk", true);
+        contructionTestTemplate("(abc)*|(k*)", "abcabc", true);
 
+    }
+
+    @Test
+    public void ambuguityTest() {
+        contructionTestTemplate("ab|c", "ac", true);
+        contructionTestTemplate("ab|c", "ab", true);
+        contructionTestTemplate("ab|c", "a", false);
+        contructionTestTemplate("ab|c", "c", false);
+        contructionTestTemplate("ab|c", "b", false);
+        contructionTestTemplate("ab|cd", "ab", true);
+        contructionTestTemplate("ab|cd", "abd", false);
+        contructionTestTemplate("ab|cd", "acd", true);
+
+        contructionTestTemplate("abc*", "abc", true);
+        contructionTestTemplate("abc*", "abcccc", true);
+        contructionTestTemplate("abc*", "abcabc", false);
+        contructionTestTemplate("ab*c", "abc", true);
+        contructionTestTemplate("ab*c", "abbbbbbbc", true);
+        contructionTestTemplate("ab*c", "ababc", false);
     }
 }
