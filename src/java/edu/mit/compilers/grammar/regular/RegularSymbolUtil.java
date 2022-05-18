@@ -11,8 +11,8 @@ import java.util.*;
 /**
  * Concat:
  * Expr := AtomExpr
- *      := AlternateExpr
  *      := AtomExpr Expr
+ *      := AlternateExpr
  *
  * AtomExpr := char
  *          := BracketExpr
@@ -96,8 +96,8 @@ public class RegularSymbolUtil {
 
     public class Expr extends ContextFreeSymbol {
         static final int atomSentenceIndex = 0;
-        static final int alternateSentenceIndex = 1;
-        static final int atomListSentenceIndex = 2;
+        static final int alternateSentenceIndex = 2;
+        static final int atomListSentenceIndex = 1;
 
         @Override
         public String toString() {

@@ -12,6 +12,15 @@ public class RegularGraph {
         source.addNonDetermined(dest);
     }
 
+    public static RegularGraph parseRegex(char[] input) {
+        var regularSymbolUtil = new RegularSymbolUtil();
+        var info = regularSymbolUtil.rootMatchExaust(input);
+        if (info.nextIterator == null) {
+            return null;
+        }
+        return (RegularGraph) info.object;
+    }
+
     public boolean isDest(RegularNode node) {
         return node == dest;
     }
@@ -28,12 +37,20 @@ public class RegularGraph {
         source.removeNondetermined(dest);
     }
 
+    public int getDestId() {
+        return dest.getId();
+    }
+
     public class Iterator {
         private HashSet<RegularNode> nodes = new HashSet<>();
         private int nextCount = 0;
 
         public Iterator(RegularNode source) {
             nodes.add(source);
+        }
+
+        public int getDestId() {
+            return dest.getId();
         }
 
         private void moveNodesThroughEpsilon() {
@@ -61,6 +78,7 @@ public class RegularGraph {
         }
 
         private void moveNodesWithCharInput(char ch) {
+            moveNodesThroughEpsilon();
             HashSet<RegularNode> l2 = new HashSet<>();
             for (var curNode : nodes) {
                 var nextNode = curNode.getDetermined(ch);
@@ -79,6 +97,10 @@ public class RegularGraph {
         public boolean hasMatch() {
             moveNodesThroughEpsilon();
             return nodes.contains(dest);
+        }
+
+        public RegularNode getDest() {
+            return dest;
         }
 
         public boolean hasNext() {

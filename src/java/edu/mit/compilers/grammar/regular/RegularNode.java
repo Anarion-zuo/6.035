@@ -36,6 +36,10 @@ public class RegularNode {
         return Objects.hash(id);
     }
 
+    public int getId() {
+        return id;
+    }
+
     public RegularNode getDetermined(char ch) {
         return determMap.get(ch);
     }
