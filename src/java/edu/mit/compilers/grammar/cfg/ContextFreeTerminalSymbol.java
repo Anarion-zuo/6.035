@@ -1,7 +1,6 @@
 package edu.mit.compilers.grammar.cfg;
 
 import java.security.InvalidAlgorithmParameterException;
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class ContextFreeTerminalSymbol extends ContextFreeSymbol {
@@ -9,7 +8,7 @@ public abstract class ContextFreeTerminalSymbol extends ContextFreeSymbol {
         super((List<ContextFreeSentence>) null);
     }
 
-    protected abstract Object getTerminalObject();
+    public abstract Object getTerminalObject();
     
     @Override
     public MatchInfo match(ContextFreeSentence.Iterator symbolIterator) {

@@ -18,7 +18,7 @@ public class RegularGraph {
         if (info.nextIterator == null) {
             return null;
         }
-        return (RegularGraph) info.object;
+        return (RegularGraph) info.afterAttribute;
     }
 
     public boolean isDest(RegularNode node) {

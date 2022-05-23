@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ContextFreeEpsilonSymbol extends ContextFreeSymbol {
     @Override
-    public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childObjects) throws InvalidAlgorithmParameterException {
+    public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childAttributes) throws InvalidAlgorithmParameterException {
         return null;
     }
 

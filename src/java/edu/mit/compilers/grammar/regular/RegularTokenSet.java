@@ -31,7 +31,7 @@ public class RegularTokenSet {
         for (var pair : tokenEntryList) {
             char[] regex = pair.getKey().toCharArray();
             var info = regularSymbolUtil.rootMatchExaust(regex);
-            RegularGraph graph = (RegularGraph) info.object;
+            RegularGraph graph = (RegularGraph) info.afterAttribute;
             destTokenMap.put(graph.getDest(), pair.getValue());
             graphList.add(graph);
         }

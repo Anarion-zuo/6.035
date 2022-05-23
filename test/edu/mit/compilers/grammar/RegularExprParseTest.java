@@ -37,7 +37,7 @@ public class RegularExprParseTest {
         Assert.assertTrue(regularSymbolUtil.isFormatCorrect(int1));
         Assert.assertTrue(regularSymbolUtil.isFormatCorrect(int2));
 
-        char[] incompleteLeftBracket = "(abc".toCharArray();
+        char[] incompleteLeftBracket = "(a".toCharArray();
         char[] incompleteRightBracket = "aaa)".toCharArray();
         char[] unpairedBracket = ")(".toCharArray();
         char[] incompleteAlter = "|a".toCharArray();
@@ -56,7 +56,7 @@ public class RegularExprParseTest {
         char[] regex = regexString.toCharArray(), input = inputString.toCharArray();
         var info = regularSymbolUtil.rootMatchExaust(regex);
         Assert.assertTrue(regularSymbolUtil.isFormatCorrect(regex));
-        RegularGraph graph = (RegularGraph) info.object;
+        RegularGraph graph = (RegularGraph) info.afterAttribute;
         var iter = graph.iterator();
         if (shouldMatch) {
             for (char c : input) {
@@ -129,5 +129,22 @@ public class RegularExprParseTest {
         contructionTestTemplate("ab*c", "abc", true);
         contructionTestTemplate("ab*c", "abbbbbbbc", true);
         contructionTestTemplate("ab*c", "ababc", false);
+    }
+
+    @Test
+    public void specialCharacterTest() {
+        // single special chars
+        contructionTestTemplate("\\|", "|", true);
+        contructionTestTemplate("\\*", "*", true);
+        contructionTestTemplate("\\(", "(", true);
+        contructionTestTemplate("\\)", ")", true);
+        contructionTestTemplate("(a)", "a)", false);
+
+        // integrated
+        contructionTestTemplate("(\\()", "(", true);
+        contructionTestTemplate("(\\))", ")", true);
+        contructionTestTemplate("(\\))", "(", false);
+        contructionTestTemplate("(\\()", ")", false);
+
     }
 }

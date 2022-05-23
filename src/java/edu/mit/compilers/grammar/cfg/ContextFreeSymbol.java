@@ -11,13 +11,13 @@ public class ContextFreeSymbol {
         public final ContextFreeSentence.Iterator nextIterator;
         public final ContextFreeSentence matchedSentence;
         public final int symbolCount;
-        public final Object object;
+        public final Object afterAttribute;
 
-        public MatchInfo(ContextFreeSentence.Iterator nextIterator, ContextFreeSentence matchedSentence, int symbolCount, Object object) {
+        public MatchInfo(ContextFreeSentence.Iterator nextIterator, ContextFreeSentence matchedSentence, int symbolCount, Object afterAttribute) {
             this.nextIterator = nextIterator;
             this.matchedSentence = matchedSentence;
             this.symbolCount = symbolCount;
-            this.object = object;
+            this.afterAttribute = afterAttribute;
         }
     }
 
@@ -51,11 +51,11 @@ public class ContextFreeSymbol {
         return sentences.get(index);
     }
 
-    public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childObjects) throws InvalidAlgorithmParameterException {
+    public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childAttributes) throws InvalidAlgorithmParameterException {
         return null;
     }
 
-    public MatchInfo match(ContextFreeSentence.Iterator symbolIterator) {
+    protected MatchInfo matchMaxLength(ContextFreeSentence.Iterator symbolIterator) {
         if (!symbolIterator.hasNext()) {
             return new MatchInfo(null, null, 0, null);
         }
@@ -80,7 +80,7 @@ public class ContextFreeSymbol {
             while (sentenceIterator.hasNext()) {
                 var symbol = sentenceIterator.next();
                 var info = symbol.match(curIterator);
-                matchedObjects.add(info.object);
+                matchedObjects.add(info.afterAttribute);
                 if (info.nextIterator == null) {
                     curIterator = null;
                     break;
@@ -111,6 +111,67 @@ public class ContextFreeSymbol {
             }
         }
         return new MatchInfo(resultNext, resultSentence, resultCount, resultObj);
+    }
+
+    protected MatchInfo matchBySentenceOrder(ContextFreeSentence.Iterator symbolIterator) {
+        if (!symbolIterator.hasNext()) {
+            return new MatchInfo(null, null, 0, null);
+        }
+        ContextFreeSentence.Iterator resultNext = null;
+        ContextFreeSentence resultSentence = null;
+        int resultCount = 0;
+        int resultSentenceIndex = -1;
+        var sentencesIterator = sentences.listIterator();
+        Object resultObj = null;
+        while (sentencesIterator.hasNext()) {
+            int sentenceIndex = sentencesIterator.nextIndex();
+            var sentence = sentencesIterator.next();
+            System.out.print("Matching: trying sentence " + sentence.toString() + "... ");
+            ContextFreeSentence.Iterator curIterator = null;
+            try {
+                curIterator = symbolIterator.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+            var sentenceIterator = sentence.iterator();
+            List<Object> matchedObjects = new LinkedList<>();
+            while (sentenceIterator.hasNext()) {
+                var symbol = sentenceIterator.next();
+                var info = symbol.match(curIterator);
+                matchedObjects.add(info.afterAttribute);
+                if (info.nextIterator == null) {
+                    curIterator = null;
+                    break;
+                }
+                curIterator = info.nextIterator;
+            }
+            if (curIterator != null) {
+                int localDifference = 0;
+                try {
+                    localDifference = curIterator.difference(symbolIterator);
+                } catch (OperationNotSupportedException e) {
+                    throw new RuntimeException(e);
+                }
+                resultNext = curIterator;
+                resultSentence = sentence;
+                resultCount = localDifference;
+                resultSentenceIndex = sentenceIndex;
+                try {
+                    resultObj = afterMatch(resultSentenceIndex, resultSentence, matchedObjects);
+                } catch (InvalidAlgorithmParameterException e) {
+                    throw new RuntimeException(e);
+                }
+                System.out.printf("matched count %d!\n", localDifference);
+                break;
+            } else {
+                System.out.println("failed!");
+            }
+        }
+        return new MatchInfo(resultNext, resultSentence, resultCount, resultObj);
+    }
+
+    public MatchInfo match(ContextFreeSentence.Iterator symbolIterator) {
+        return matchMaxLength(symbolIterator);
     }
 
     public MatchInfo matchExaust(ContextFreeSentence.Iterator symbolIterator) {

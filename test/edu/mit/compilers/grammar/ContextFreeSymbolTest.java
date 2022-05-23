@@ -34,7 +34,7 @@ public class ContextFreeSymbolTest {
         }
 
         @Override
-        protected Object getTerminalObject() {
+        public Object getTerminalObject() {
             return ch;
         }
     }
