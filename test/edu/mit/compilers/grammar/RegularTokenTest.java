@@ -144,4 +144,30 @@ public class RegularTokenTest {
         Assert.assertNull(regularTokenSet.match("0".toCharArray()));
         Assert.assertNull(regularTokenSet.match("000".toCharArray()));
     }
+
+    class TokenLineEnd extends Token {
+        private String text;
+
+        public TokenLineEnd(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String getText() {
+            return text;
+        }
+    }
+
+    @Test
+    public void specialCharRegexTest() {
+        regularTokenSet = RegularTokenSet.newByRegexList(List.of(
+                entry("a*\\n", new TokenLineEnd("a star")),
+                entry("abc.*\\n", new TokenLineEnd("abc.star")),
+                entry("abc\t.*\\n", new TokenLineEnd("abc.star escape t"))
+        ));
+        Assert.assertEquals("a star", regularTokenSet.match("aaaa\n".toCharArray()).getText());
+        Assert.assertEquals("abc.star", regularTokenSet.match("abckkkk\n".toCharArray()).getText());
+        Assert.assertEquals("abc.star", regularTokenSet.match("abc545468\n".toCharArray()).getText());
+        Assert.assertEquals("abc.star", regularTokenSet.match("abc\\t123abc\n".toCharArray()).getText());
+    }
 }

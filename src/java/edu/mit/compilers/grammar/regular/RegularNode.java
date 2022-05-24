@@ -1,5 +1,6 @@
 package edu.mit.compilers.grammar.regular;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.util.*;
 
 public class RegularNode {
@@ -44,7 +45,7 @@ public class RegularNode {
         return determMap.get(ch);
     }
 
-    public void addDetermined(char ch, RegularNode node) {
+    public void addDetermined(char ch, RegularNode node) throws InvalidAlgorithmParameterException {
         determMap.put(ch, node);
     }
 

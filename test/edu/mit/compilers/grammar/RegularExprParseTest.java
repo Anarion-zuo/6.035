@@ -145,6 +145,41 @@ public class RegularExprParseTest {
         contructionTestTemplate("(\\))", ")", true);
         contructionTestTemplate("(\\))", "(", false);
         contructionTestTemplate("(\\()", ")", false);
+        contructionTestTemplate("(\\|)", "|", true);
+        contructionTestTemplate("(\\*)", "*", true);
+        contructionTestTemplate("(\\**)", "*****", true);
+        contructionTestTemplate("(\\**)", "", true);
+        contructionTestTemplate("(ab)|(c\\|d)", "c", false);
+        contructionTestTemplate("(ab)|(c\\|d)", "ab", true);
+        contructionTestTemplate("(ab)|(c\\|d)", "c|d", true);
+        contructionTestTemplate("(ab)|(c\\|d)", "c|", false);
+    }
 
+    @Test
+    public void wildcardTest() {
+        contructionTestTemplate(".", "a", true);
+        contructionTestTemplate(".", "b", true);
+        contructionTestTemplate(".", "p", true);
+        contructionTestTemplate("...", "123", true);
+        contructionTestTemplate("...", "123", true);
+        contructionTestTemplate("...", "1234", false);
+        contructionTestTemplate("...", "12", false);
+
+        contructionTestTemplate(".a.", "1a3", true);
+        contructionTestTemplate(".a.", "1a9", true);
+        contructionTestTemplate(".a.", "1b9", false);
+
+        contructionTestTemplate("(..)|.", "ac", true);
+        contructionTestTemplate("(..)|.", "8", true);
+        contructionTestTemplate("(..)|.", "85", true);
+        contructionTestTemplate("(..)|.", "85a", false);
+
+        contructionTestTemplate(".*", "", true);
+        contructionTestTemplate(".*", "1", true);
+        contructionTestTemplate(".*", "123", true);
+        contructionTestTemplate(".*", "68768f4a68s4ef8sv8274r9(^&*^*&", true);
+        contructionTestTemplate("a.*", "a68768f4a68s4ef8sv8274r9(^&*^*&", true);
+        contructionTestTemplate("ab.*", "ab68768f4a68s4ef8sv8274r9(^&*^*&", true);
+        contructionTestTemplate("ab.*", "ac68768f4a68s4ef8sv8274r9(^&*^*&", false);
     }
 }

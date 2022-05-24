@@ -6,6 +6,8 @@ import edu.mit.compilers.grammar.regular.RegularNode;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.security.InvalidAlgorithmParameterException;
+
 public class RegularMatchTest {
 
     @Test
@@ -24,7 +26,7 @@ public class RegularMatchTest {
     }
 
     @Test
-    public void charMatchTest() {
+    public void charMatchTest() throws InvalidAlgorithmParameterException {
         RegularGraph graph = new RegularGraph();
         graph.getSource().addDetermined('a', graph.getDest());
         graph.getSource().removeNondetermined(graph.getDest());
@@ -35,7 +37,7 @@ public class RegularMatchTest {
     }
 
     @Test
-    public void alternateCharMatchTest() {
+    public void alternateCharMatchTest() throws InvalidAlgorithmParameterException {
         // Construct a|b
         RegularNode m1 = new RegularNode(), m2 = new RegularNode();
         RegularGraph graph = new RegularGraph();

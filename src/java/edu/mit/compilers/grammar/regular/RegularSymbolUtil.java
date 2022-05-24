@@ -282,12 +282,23 @@ public class RegularSymbolUtil {
             return escapeChar;
         }
 
+        private RegularGraph onDotWildCard() {
+            RegularGraph graph = new RegularGraph();
+            graph.breakSourceAndDest();
+            RegularNode dotNode = new RegularWildcardNode(graph.getDest());
+            graph.getSource().addNonDetermined(dotNode);
+            return graph;
+        }
+
         @Override
         public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childAttributes) throws InvalidAlgorithmParameterException {
             switch (sentenceIndex) {
                 case singleCharIndex -> {
                     assert childAttributes.size() == 1;
                     var attr = (SingleCharExpr.Attribute) childAttributes.get(0);
+                    if (attr.matchedChar == '.') {
+                        return onDotWildCard();
+                    }
                     return attr.graph;
                 }
                 case escapeIndex -> {
