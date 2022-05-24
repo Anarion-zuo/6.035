@@ -139,6 +139,7 @@ public class RegularExprParseTest {
         contructionTestTemplate("\\(", "(", true);
         contructionTestTemplate("\\)", ")", true);
         contructionTestTemplate("(a)", "a)", false);
+        contructionTestTemplate("\\\\", "\\", true);
 
         // integrated
         contructionTestTemplate("(\\()", "(", true);
@@ -153,6 +154,8 @@ public class RegularExprParseTest {
         contructionTestTemplate("(ab)|(c\\|d)", "ab", true);
         contructionTestTemplate("(ab)|(c\\|d)", "c|d", true);
         contructionTestTemplate("(ab)|(c\\|d)", "c|", false);
+        contructionTestTemplate("\\\\a", "\\a", true);
+        contructionTestTemplate("\\\\*", "\\\\\\\\\\\\\\\\", true);
     }
 
     @Test

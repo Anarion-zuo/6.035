@@ -258,8 +258,8 @@ public class RegularSymbolUtil {
 
     public class CharExpr extends ContextFreeSymbol {
 
-        private static final int singleCharIndex = 0;
-        private static final int escapeIndex = 1;
+        private static final int singleCharIndex = 1;
+        private static final int escapeIndex = 0;
 
         @Override
         public String toString() {
@@ -404,7 +404,7 @@ public class RegularSymbolUtil {
                         return true;
                     }
                 }
-                return singleCharExpr.ch != '\\';
+                return true;
             }
             System.out.printf("(char match %c %c)", this.ch, singleCharExpr.ch);
             return singleCharExpr.ch == this.ch;
