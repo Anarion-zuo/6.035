@@ -132,6 +132,46 @@ public class RegularExprParseTest {
     }
 
     @Test
+    public void enumTest() {
+        contructionTestTemplate("[a]", "a", true);
+        contructionTestTemplate("[ab]", "a", true);
+        contructionTestTemplate("[ab]", "b", true);
+        contructionTestTemplate("[ab]", "c", false);
+
+        contructionTestTemplate("[a-c]", "a", true);
+        contructionTestTemplate("[a-c]", "b", true);
+        contructionTestTemplate("[a-c]", "c", true);
+        contructionTestTemplate("[a-c]", "9", false);
+        contructionTestTemplate("[a-c0-3]", "1", true);
+        contructionTestTemplate("[a-c0-3]", "3", true);
+        contructionTestTemplate("[a-c0-3]", ";", false);
+//
+//        contructionTestTemplate("[^abc]", "a", false);
+//        contructionTestTemplate("[^abc]", "b", false);
+//        contructionTestTemplate("[^abc]", "c", false);
+//        contructionTestTemplate("[^abc]", "1", true);
+//        contructionTestTemplate("[^abc]", "2", true);
+//
+//        contructionTestTemplate("[^a-c]", "a", false);
+//        contructionTestTemplate("[^a-c]", "b", false);
+//        contructionTestTemplate("[^a-c]", "c", false);
+//        contructionTestTemplate("[^a-c]", "9", true);
+//        contructionTestTemplate("[^a-c0-3]", "1", false);
+//        contructionTestTemplate("[^a-c0-3]", "3", false);
+//        contructionTestTemplate("[^a-c0-3]", ";", true);
+//
+//        contructionTestTemplate("[^ab\\|]", "|", false);
+        contructionTestTemplate("[a]|[bc]", "b", true);
+        contructionTestTemplate("[a]|[bc]", "a", true);
+        contructionTestTemplate("[a]|[bc]", "c", true);
+        contructionTestTemplate("[a]|[bc]", "d", false);
+        contructionTestTemplate("[bc]*", "bbccccbbc", true);
+        contructionTestTemplate("[bc]*", "bbcaccbbc", false);
+//        contructionTestTemplate("[^bc]*", "bbccb", false);
+//        contructionTestTemplate("[^b]*", "aalle", true);
+    }
+
+    @Test
     public void specialCharacterTest() {
         // single special chars
         contructionTestTemplate("\\|", "|", true);
@@ -156,6 +196,8 @@ public class RegularExprParseTest {
         contructionTestTemplate("(ab)|(c\\|d)", "c|", false);
         contructionTestTemplate("\\\\a", "\\a", true);
         contructionTestTemplate("\\\\*", "\\\\\\\\\\\\\\\\", true);
+
+        contructionTestTemplate("\\n\\t\\r", "\n\t\r", true);
     }
 
     @Test
@@ -167,6 +209,10 @@ public class RegularExprParseTest {
         contructionTestTemplate("...", "123", true);
         contructionTestTemplate("...", "1234", false);
         contructionTestTemplate("...", "12", false);
+
+        contructionTestTemplate("\\.", ".", true);
+        contructionTestTemplate("\\.", "a", false);
+        contructionTestTemplate("\\.*", "......", true);
 
         contructionTestTemplate(".a.", "1a3", true);
         contructionTestTemplate(".a.", "1a9", true);
@@ -184,5 +230,19 @@ public class RegularExprParseTest {
         contructionTestTemplate("a.*", "a68768f4a68s4ef8sv8274r9(^&*^*&", true);
         contructionTestTemplate("ab.*", "ab68768f4a68s4ef8sv8274r9(^&*^*&", true);
         contructionTestTemplate("ab.*", "ac68768f4a68s4ef8sv8274r9(^&*^*&", false);
+    }
+
+    @Test
+    public void optionalTest() {
+        contructionTestTemplate("?", "1", true);
+        contructionTestTemplate("?", "", true);
+        contructionTestTemplate("??", "", true);
+        contructionTestTemplate("??", "1", true);
+        contructionTestTemplate("??", "12", true);
+        contructionTestTemplate("??", "123", false);
+        contructionTestTemplate("1234?", "1234", true);
+        contructionTestTemplate("1234?", "12345", true);
+        contructionTestTemplate("1234?", "123456", false);
+        contructionTestTemplate("1234?", "1234567", false);
     }
 }

@@ -3,13 +3,21 @@ package edu.mit.compilers.grammar.regular;
 import java.util.*;
 
 public class RegularGraph {
-    private final RegularNode source;
-    private final RegularNode dest;
+    protected final RegularNode source;
+    protected final RegularNode dest;
+    protected final RegularNode error;
 
     public RegularGraph() {
         dest = new RegularNode();
         source = new RegularNode();
+        error = new RegularNode();
         source.addNonDetermined(dest);
+    }
+
+    public RegularGraph(RegularNode source, RegularNode dest, RegularNode error) {
+        this.dest = dest;
+        this.source = source;
+        this.error = error;
     }
 
     public static RegularGraph parseRegex(char[] input) {
@@ -33,6 +41,10 @@ public class RegularGraph {
         return dest;
     }
 
+    public RegularNode getError() {
+        return error;
+    }
+
     public void breakSourceAndDest() {
         source.removeNondetermined(dest);
     }
@@ -42,7 +54,7 @@ public class RegularGraph {
     }
 
     public class Iterator {
-        private HashSet<RegularNode> nodes = new HashSet<>();
+        protected HashSet<RegularNode> nodes = new HashSet<>();
         private int nextCount = 0;
 
         public Iterator(RegularNode source) {
@@ -53,7 +65,7 @@ public class RegularGraph {
             return dest.getId();
         }
 
-        private void moveNodesThroughEpsilon() {
+        protected void moveNodesThroughEpsilon() {
             HashSet<RegularNode> l1 = nodes, l2 = new HashSet<>();
             while (true) {
                 boolean ended = true;
@@ -84,6 +96,8 @@ public class RegularGraph {
                 var nextNode = curNode.getDetermined(ch);
                 if (nextNode != null) {
                     l2.add(nextNode);
+                } else {
+                    l2.add(error);
                 }
             }
             nodes = l2;
@@ -109,7 +123,7 @@ public class RegularGraph {
         }
 
         public boolean invalid() {
-            return nodes.isEmpty();
+            return nodes.isEmpty() || (nodes.size() == 1 && nodes.contains(error));
         }
 
         public void next(char ch) {
@@ -118,7 +132,34 @@ public class RegularGraph {
         }
     }
 
+    public class ExceptIterator extends Iterator {
+
+        public ExceptIterator(RegularNode source) {
+            super(source);
+        }
+
+        @Override
+        public boolean hasMatch() {
+            moveNodesThroughEpsilon();
+            return nodes.contains(error);
+        }
+
+        @Override
+        public boolean hasNext() {
+            moveNodesThroughEpsilon();
+            return !(nodes.size() == 1 && nodes.contains(error));
+        }
+
+        @Override
+        public boolean invalid() {
+            return nodes.isEmpty() || (nodes.size() == 1 && nodes.contains(dest));
+        }
+    }
+
     public Iterator iterator() {
         return new Iterator(source);
+    }
+    public ExceptIterator exceptIterator() {
+        return new ExceptIterator(source);
     }
 }
