@@ -10,74 +10,20 @@ import java.util.List;
 import static java.util.Map.entry;
 
 public class RegularTokenTest {
-    class TokenA extends Token {
-        @Override
-        public String getText() {
-            return "A";
-        }
-    }
-
-    class TokenB extends Token {
-        @Override
-        public String getText() {
-            return "B";
-        }
-    }
-
     private RegularTokenSet regularTokenSet = null;
 
     @Test
     public void simpleTokenTest() {
         regularTokenSet = RegularTokenSet.newByRegexList(List.of(
-                entry("A", new TokenA()),
-                entry("B", new TokenB())
+                entry("A", "A"),
+                entry("B", "B")
         ));
         var iter = regularTokenSet.iterator();
-        Assert.assertEquals(iter.next('A').getText(), "A");
+        Assert.assertEquals(iter.next('A').getFirst(), "A");
         iter = regularTokenSet.iterator();
-        Assert.assertEquals(iter.next('B').getText(), "B");
+        Assert.assertEquals(iter.next('B').getFirst(), "B");
         iter = regularTokenSet.iterator();
-        Assert.assertNull(iter.next('C'));
-    }
-
-    class TokenAB extends Token {
-        @Override
-        public String getText() {
-            return "AB";
-        }
-    }
-
-    class TokenAlternate extends Token {
-        @Override
-        public String getText() {
-            return "Alternate";
-        }
-    }
-
-    class TokenClosure extends Token {
-        @Override
-        public String getText() {
-            return "Closure";
-        }
-    }
-
-    class TokenDigit extends Token {
-        @Override
-        public String getText() {
-            return "Digit";
-        }
-    }
-
-    class TokenPositiveInteger extends Token {
-        @Override
-        public String getText() {
-            return "PositiveInteger";
-        }
-
-        @Override
-        protected Object makeAttribute(char[] input) {
-            return Integer.parseInt(new String(input));
-        }
+        Assert.assertTrue(iter.next('C').isEmpty());
     }
 
     @Test
@@ -85,89 +31,89 @@ public class RegularTokenTest {
         String positiveDigits = "1|2|3|4|5|6|7|8|9";
         String digits = "0|" + positiveDigits;
         regularTokenSet = RegularTokenSet.newByRegexList(List.of(
-                entry("AB", new TokenAB()),
-                entry("A|B", new TokenAlternate()),
-                entry("A*", new TokenClosure()),
-                entry(digits, new TokenDigit()),
-                entry("(" + positiveDigits + ")" + "(" + digits + ")*", new TokenPositiveInteger())
+                entry("AB", "AB"),
+                entry("A|B", "A|B"),
+                entry("A*", "A*"),
+                entry(digits, "digits"),
+                entry("(" + positiveDigits + ")" + "(" + digits + ")*", "positive integer")
         ));
 
         var iter = regularTokenSet.iterator();
-        Assert.assertEquals("Alternate", iter.next('A').getText());
-        Assert.assertEquals("Closure", iter.next('A').getText());
-        Assert.assertEquals("Closure", iter.next('A').getText());
+        Assert.assertEquals("A|B", iter.next('A').getFirst());
+        Assert.assertEquals("A*", iter.next('A').getFirst());
+        Assert.assertEquals("A*", iter.next('A').getFirst());
 
         iter = regularTokenSet.iterator();
         iter.next('A');
-        Assert.assertEquals("AB", iter.next('B').getText());
+        Assert.assertEquals("AB", iter.next('B').getFirst());
 
         iter = regularTokenSet.iterator();
-        Assert.assertEquals("Alternate", iter.next('B').getText());
+        Assert.assertEquals("A|B", iter.next('B').getFirst());
 
-        String digitString = new TokenDigit().getText();
+        String digitString = "digits";
         iter = regularTokenSet.iterator();
-        Assert.assertEquals(digitString, iter.next('0').getText());
+        Assert.assertEquals(digitString, iter.next('0').getFirst());
         iter = regularTokenSet.iterator();
-        Assert.assertEquals(digitString, iter.next('1').getText());
+        Assert.assertEquals(digitString, iter.next('1').getFirst());
         iter = regularTokenSet.iterator();
-        Assert.assertEquals(digitString, iter.next('2').getText());
+        Assert.assertEquals(digitString, iter.next('2').getFirst());
         iter = regularTokenSet.iterator();
-        Assert.assertEquals(digitString, iter.next('3').getText());
+        Assert.assertEquals(digitString, iter.next('3').getFirst());
         iter = regularTokenSet.iterator();
-        Assert.assertEquals(digitString, iter.next('4').getText());
+        Assert.assertEquals(digitString, iter.next('4').getFirst());
         iter = regularTokenSet.iterator();
-        Assert.assertEquals(digitString, iter.next('5').getText());
+        Assert.assertEquals(digitString, iter.next('5').getFirst());
         iter = regularTokenSet.iterator();
-        Assert.assertEquals(digitString, iter.next('6').getText());
+        Assert.assertEquals(digitString, iter.next('6').getFirst());
         iter = regularTokenSet.iterator();
-        Assert.assertEquals(digitString, iter.next('7').getText());
+        Assert.assertEquals(digitString, iter.next('7').getFirst());
         iter = regularTokenSet.iterator();
-        Assert.assertEquals(digitString, iter.next('8').getText());
+        Assert.assertEquals(digitString, iter.next('8').getFirst());
         iter = regularTokenSet.iterator();
-        Assert.assertEquals(digitString, iter.next('9').getText());
+        Assert.assertEquals(digitString, iter.next('9').getFirst());
 
         regularTokenSet = RegularTokenSet.newByRegexList(List.of(
-                entry("AB", new TokenAB()),
-                entry("A|B", new TokenAlternate()),
-                entry("A*", new TokenClosure()),
-                entry("(" + positiveDigits + ")" + "(" + digits + ")*", new TokenPositiveInteger())
+                entry("AB", "AB"),
+                entry("A|B", "A|B"),
+                entry("A*", "A*"),
+                entry("(" + positiveDigits + ")" + "(" + digits + ")*", "positive integer")
         ));
-        Assert.assertEquals("PositiveInteger", regularTokenSet.match("123".toCharArray()).getText());
-        Assert.assertEquals(123, regularTokenSet.match("123".toCharArray()).getAttribute());
-        Assert.assertEquals("PositiveInteger", regularTokenSet.match("111111111".toCharArray()).getText());
-        Assert.assertEquals(111111111, regularTokenSet.match("111111111".toCharArray()).getAttribute());
-        Assert.assertEquals("PositiveInteger", regularTokenSet.match("9988".toCharArray()).getText());
-        Assert.assertEquals(9988, regularTokenSet.match("9988".toCharArray()).getAttribute());
-        Assert.assertEquals("PositiveInteger", regularTokenSet.match("9000".toCharArray()).getText());
-        Assert.assertEquals(9000, regularTokenSet.match("9000".toCharArray()).getAttribute());
-        Assert.assertNull(regularTokenSet.match("0123".toCharArray()));
-        Assert.assertNull(regularTokenSet.match("0".toCharArray()));
-        Assert.assertNull(regularTokenSet.match("000".toCharArray()));
-    }
-
-    class TokenLineEnd extends Token {
-        private String text;
-
-        public TokenLineEnd(String text) {
-            this.text = text;
-        }
-
-        @Override
-        public String getText() {
-            return text;
-        }
+        Assert.assertEquals("positive integer", regularTokenSet.match("123".toCharArray()).getFirst());
+        Assert.assertEquals("positive integer", regularTokenSet.match("111111111".toCharArray()).getFirst());
+        Assert.assertEquals("positive integer", regularTokenSet.match("9988".toCharArray()).getFirst());
+        Assert.assertEquals("positive integer", regularTokenSet.match("9000".toCharArray()).getFirst());
     }
 
     @Test
     public void specialCharRegexTest() {
         regularTokenSet = RegularTokenSet.newByRegexList(List.of(
-                entry("a*\\n", new TokenLineEnd("a star")),
-                entry("abc.*\\n", new TokenLineEnd("abc.star")),
-                entry("abc\t.*\\n", new TokenLineEnd("abc.star escape t"))
+                entry("a*\\n", "a star"),
+                entry("abc.*\\n", "abc.star"),
+                entry("abc\t.*\\n", "abc.star escape t")
         ));
-        Assert.assertEquals("a star", regularTokenSet.match("aaaa\n".toCharArray()).getText());
-        Assert.assertEquals("abc.star", regularTokenSet.match("abckkkk\n".toCharArray()).getText());
-        Assert.assertEquals("abc.star", regularTokenSet.match("abc545468\n".toCharArray()).getText());
-        Assert.assertEquals("abc.star", regularTokenSet.match("abc\\t123abc\n".toCharArray()).getText());
+        Assert.assertEquals("a star", regularTokenSet.match("aaaa\n".toCharArray()).getFirst());
+        Assert.assertEquals("abc.star", regularTokenSet.match("abckkkk\n".toCharArray()).getFirst());
+        Assert.assertEquals("abc.star", regularTokenSet.match("abc545468\n".toCharArray()).getFirst());
+        Assert.assertEquals("abc.star", regularTokenSet.match("abc\\t123abc\n".toCharArray()).getFirst());
+    }
+
+    @Test
+    public void matchLengthTest() {
+        regularTokenSet = RegularTokenSet.newByRegexList(List.of(
+                entry("aaab", "3a1b"),
+                entry("aaac", "3a1c")
+        ));
+        var matchedList = regularTokenSet.matchLongest("aaad".toCharArray());
+        Assert.assertEquals(2, matchedList.size());
+        matchedList = regularTokenSet.matchLongest("aaab".toCharArray());
+        Assert.assertEquals(1, matchedList.size());
+        Assert.assertEquals("3a1b", matchedList.getFirst().tokenName);
+        regularTokenSet = RegularTokenSet.newByRegexList(List.of(
+                entry("'.'", "char literal"),
+                entry(".", "single char")
+        ));
+        matchedList = regularTokenSet.matchLongest("'ab'".toCharArray());
+        Assert.assertEquals(1, matchedList.size());
+        Assert.assertEquals("char literal", matchedList.getFirst().tokenName);
     }
 }

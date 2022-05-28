@@ -65,6 +65,17 @@ public class RegularGraph {
             return dest.getId();
         }
 
+        private Iterator(HashSet<RegularNode> nodes, int nextCount) {
+            this.nodes = nodes;
+            this.nextCount = nextCount;
+        }
+
+        public Iterator clone() {
+            var newNodes = new HashSet<RegularNode>(nodes);
+            var newNextCount = nextCount;
+            return new Iterator(newNodes, newNextCount);
+        }
+
         protected void moveNodesThroughEpsilon() {
             HashSet<RegularNode> l1 = nodes, l2 = new HashSet<>();
             while (true) {
