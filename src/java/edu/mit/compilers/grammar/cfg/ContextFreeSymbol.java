@@ -1,5 +1,7 @@
 package edu.mit.compilers.grammar.cfg;
 
+import edu.mit.compilers.tools.Logger;
+
 import javax.naming.OperationNotSupportedException;
 import java.security.InvalidAlgorithmParameterException;
 import java.util.*;
@@ -68,7 +70,7 @@ public class ContextFreeSymbol {
         while (sentencesIterator.hasNext()) {
             int sentenceIndex = sentencesIterator.nextIndex();
             var sentence = sentencesIterator.next();
-            System.out.print("Matching: trying sentence " + sentence.toString() + "... ");
+            Logger.getInstance().printf("RegularParse", "Matching: trying sentence " + sentence.toString() + "... ");
             ContextFreeSentence.Iterator curIterator = null;
             try {
                 curIterator = symbolIterator.clone();
@@ -105,9 +107,9 @@ public class ContextFreeSymbol {
                         throw new RuntimeException(e);
                     }
                 }
-                System.out.printf("matched count %d!\n", localDifference);
+                Logger.getInstance().printf("RegularParse", "matched count %d!\n", localDifference);
             } else {
-                System.out.println("failed!");
+                Logger.getInstance().printf("RegularParse", "failed!");
             }
         }
         return new MatchInfo(resultNext, resultSentence, resultCount, resultObj);
@@ -126,7 +128,7 @@ public class ContextFreeSymbol {
         while (sentencesIterator.hasNext()) {
             int sentenceIndex = sentencesIterator.nextIndex();
             var sentence = sentencesIterator.next();
-            System.out.print("Matching: trying sentence " + sentence.toString() + "... ");
+            Logger.getInstance().printf("RegularParse", "Matching: trying sentence " + sentence.toString() + "... ");
             ContextFreeSentence.Iterator curIterator = null;
             try {
                 curIterator = symbolIterator.clone();
@@ -161,10 +163,10 @@ public class ContextFreeSymbol {
                 } catch (InvalidAlgorithmParameterException e) {
                     throw new RuntimeException(e);
                 }
-                System.out.printf("matched count %d!\n", localDifference);
+                Logger.getInstance().printf("RegularParse", "matched count %d!", localDifference);
                 break;
             } else {
-                System.out.println("failed!");
+                Logger.getInstance().printf("RegularParse", "failed!");
             }
         }
         return new MatchInfo(resultNext, resultSentence, resultCount, resultObj);
@@ -183,7 +185,7 @@ public class ContextFreeSymbol {
             if (!info.nextIterator.hasNext()) {
                 return info;
             }
-            System.out.println("input not exausted, continue...");
+            Logger.getInstance().printf("RegularParse", "input not exausted, continue...");
             symbolIterator = info.nextIterator;
         }
     }
