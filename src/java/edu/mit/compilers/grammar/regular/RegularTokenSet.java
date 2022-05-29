@@ -12,6 +12,12 @@ public class RegularTokenSet {
         this.regularGraphList = graphList;
     }
 
+    /**
+     * Build token set by list of node mapping
+     * @param destNodeMap mapping from destination node to token name
+     * @param graphList regex graphs
+     * @return
+     */
     public static RegularTokenSet newByDestNodeMap(Map<RegularNode, String> destNodeMap, List<RegularGraph> graphList) {
         Map<Integer, String> tokenMap = new HashMap<>();
         for (var pair : destNodeMap.entrySet()) {
@@ -20,6 +26,11 @@ public class RegularTokenSet {
         return new RegularTokenSet(tokenMap, graphList);
     }
 
+    /**
+     * Build token set by list of mapping
+     * @param tokenEntryList mapping from regex to token name
+     * @return
+     */
     public static RegularTokenSet newByRegexList(List<Map.Entry<String, String>> tokenEntryList) {
         RegularSymbolUtil regularSymbolUtil = new RegularSymbolUtil();
         HashMap<RegularNode, String> destTokenMap = new HashMap<>();
@@ -94,6 +105,7 @@ public class RegularTokenSet {
         public LinkedList<MatchInfo> mightMatch() {
             LinkedList<MatchInfo> result = new LinkedList<>();
             for (var iter : iteratorList) {
+                iter.moveNodesThroughEpsilon();
                 if (iter.invalid()) {
                     continue;
                 }
@@ -183,6 +195,10 @@ public class RegularTokenSet {
         return new LinkedList<>(matchLongest(input, iterator(), 0));
     }
 
+    public LinkedList<MatchInfo> matchLongest(String input) {
+        return matchLongest(input.toCharArray());
+    }
+
     private static Map.Entry<String, String> parseMappingLine(String line) {
         int left = 0;
         while (left < line.length()) {
@@ -193,11 +209,17 @@ public class RegularTokenSet {
             }
         }
         if (left == line.length()) {
-            throw new InputMismatchException();
+            // empty line
+            return null;
+            //throw new InputMismatchException();
+        }
+        if (line.charAt(left) == '#') {
+            // comment line
+            return null;
         }
         int right = left;
         while (right < line.length()) {
-            if (line.charAt(left) != ' ') {
+            if (line.charAt(right) != ' ') {
                 ++right;
             } else {
                 break;
@@ -223,7 +245,7 @@ public class RegularTokenSet {
         }
         right = left;
         while (right < line.length()) {
-            if (line.charAt(left) != ' ') {
+            if (line.charAt(right) != '}') {
                 ++right;
             } else {
                 break;
@@ -232,7 +254,7 @@ public class RegularTokenSet {
         if (line.charAt(right) != '}') {
             throw new InputMismatchException();
         }
-        return Map.entry(tokenName, line.substring(left + 1, right - 1));
+        return Map.entry(line.substring(left + 1, right), tokenName);
     }
     private static List<Map.Entry<String, String>> getRegexTokenListFromFile(File file) throws IOException {
         ArrayList<Map.Entry<String, String>> result = new ArrayList<>();
@@ -243,7 +265,10 @@ public class RegularTokenSet {
             if (line == null) {
                 break;
             }
-            result.add(parseMappingLine(line));
+            var parsedLine = parseMappingLine(line);
+            if (parsedLine != null) {
+                result.add(parsedLine);
+            }
         }
         reader.close();
         return result;
