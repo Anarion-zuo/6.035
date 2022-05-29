@@ -3,19 +3,15 @@
 package edu.mit.compilers.grammar.token;
 
 public class Token {
+    protected final String matchedText;
+    protected boolean matched = false;
 
-    Object attribute = null;
-
-    public void setAttribute(char[] input) {
-        this.attribute = makeAttribute(input);
+    public Token(String matchedText) {
+        this.matchedText = matchedText;
     }
 
-    protected Object makeAttribute(char[] input) {
-        return null;
-    }
-
-    public Object getAttribute() {
-        return attribute;
+    public String inspect() {
+        return "";
     }
 
     public boolean isEOF() {
@@ -23,6 +19,10 @@ public class Token {
     }
 
     public String getText() {
-        return "";
+        return "EMPTY_TOKEN";
+    }
+
+    public class Report {
+
     }
 }
