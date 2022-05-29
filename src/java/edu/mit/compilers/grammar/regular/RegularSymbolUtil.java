@@ -4,6 +4,7 @@ import edu.mit.compilers.grammar.cfg.ContextFreeEpsilonSymbol;
 import edu.mit.compilers.grammar.cfg.ContextFreeSentence;
 import edu.mit.compilers.grammar.cfg.ContextFreeSymbol;
 import edu.mit.compilers.grammar.cfg.ContextFreeTerminalSymbol;
+import edu.mit.compilers.tools.Logger;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.util.*;
@@ -63,7 +64,7 @@ public class RegularSymbolUtil {
     //private ClosureExpr closureExprNode = new ClosureExpr();
     private ClosureExpr closureNode = new ClosureExpr();
     //private Closure2Expr closure2Node = new Closure2Expr();
-    private EpsilonExpr epsilonExpr = new EpsilonExpr();
+    //private EpsilonExpr epsilonExpr = new EpsilonExpr();
 
     private SingleCharExpr wildcardSingleCharExpr = new SingleCharExpr(wildcardCharVal);
     private SingleCharExpr wildcardEscapeSingleCharExpr = new SingleCharExpr(wildcardCharVal, true);
@@ -158,7 +159,7 @@ public class RegularSymbolUtil {
         }
         var info = exprNode.matchExaust(inputStream.iterator());
         if (info.nextIterator != null) {
-            System.out.println("Matched!!: " + info.matchedSentence);
+            Logger.getInstance().printf("RegularParse", "Matched!!: " + info.matchedSentence);
         }
         return info;
     }
@@ -189,6 +190,8 @@ public class RegularSymbolUtil {
             atomGraph.getDest().addNonDetermined(rightGraph.getSource());
             rightGraph.getDest().addNonDetermined(graph.getDest());
             graph.getSource().addNonDetermined(atomGraph.getSource());
+            atomGraph.getError().addNonDetermined(graph.getError());
+            rightGraph.getError().addNonDetermined(graph.getError());
             return graph;
         }
 
@@ -236,13 +239,15 @@ public class RegularSymbolUtil {
             return "AlternateExpr";
         }
 
-        public Object onAlterList(RegularGraph atomNode, RegularGraph listNode) {
+        public Object onAlterList(RegularGraph atomGraph, RegularGraph listGraph) {
             RegularGraph graph = new RegularGraph();
             graph.breakSourceAndDest();
-            graph.getSource().addNonDetermined(atomNode.getSource());
-            graph.getSource().addNonDetermined(listNode.getSource());
-            atomNode.getDest().addNonDetermined(graph.getDest());
-            listNode.getDest().addNonDetermined(graph.getDest());
+            graph.getSource().addNonDetermined(atomGraph.getSource());
+            graph.getSource().addNonDetermined(listGraph.getSource());
+            atomGraph.getDest().addNonDetermined(graph.getDest());
+            listGraph.getDest().addNonDetermined(graph.getDest());
+            atomGraph.getError().addNonDetermined(graph.getError());
+            listGraph.getError().addNonDetermined(graph.getError());
             return graph;
         }
 
@@ -292,11 +297,12 @@ public class RegularSymbolUtil {
             closuredGraph.getDest().addNonDetermined(closuredGraph.getSource());
             graph.getSource().addNonDetermined(closuredGraph.getSource());
             closuredGraph.getDest().addNonDetermined(graph.getDest());
+            closuredGraph.getError().addNonDetermined(graph.getError());
             return graph;
         }
     }
 
-    public class EpsilonExpr extends ContextFreeEpsilonSymbol {
+    /*public class EpsilonExpr extends ContextFreeEpsilonSymbol {
         @Override
         public String toString() {
             return "EpsilonExpr";
@@ -306,7 +312,7 @@ public class RegularSymbolUtil {
         public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childAttributes) throws InvalidAlgorithmParameterException {
             return new RegularGraph();
         }
-    }
+    }*/
 
     public class CharExpr extends ContextFreeSymbol {
 
@@ -340,14 +346,14 @@ public class RegularSymbolUtil {
         private RegularGraph onDotWildCard() {
             RegularGraph graph = new RegularGraph();
             graph.breakSourceAndDest();
-            RegularNode dotNode = new RegularWildcardNode(graph.getDest());
+            RegularNode dotNode = new RegularWildcardNode(graph.getDest(), graph.getError());
             graph.getSource().addNonDetermined(dotNode);
             return graph;
         }
 
         private RegularGraph onOptional() {
             RegularGraph graph = new RegularGraph();
-            RegularNode dotNode = new RegularWildcardNode(graph.getDest());
+            RegularNode dotNode = new RegularWildcardNode(graph.getDest(), graph.getError());
             graph.getSource().addNonDetermined(dotNode);
             return graph;
         }
@@ -444,28 +450,28 @@ public class RegularSymbolUtil {
                 // this is a reserved symbol
                 if (singleCharExpr.isSpecial) {
                     // an escape symbol cannot be a reserved symbol
-                    System.out.println("(char match reserved : escape)");
+                    Logger.getInstance().printf("RegularParse", "(char match reserved : escape)");
                     return false;
                 }
                 // rhs is not an escape symbol
             }
             if (ch == wildcardCharVal) {
                 if (singleCharExpr.ch == wildcardCharVal) {
-                    System.out.print("(char match both wildcard)");
+                    Logger.getInstance().printf("RegularParse", "(char match both wildcard)");
                     return true;
                 }
                 if (specialChars.contains(singleCharExpr.ch)) {
                     if (!isSpecial) {
-                        System.out.printf("(char not match wildcard rhs with special char %c)", singleCharExpr.ch);
+                        Logger.getInstance().printf("RegularParse", "(char not match wildcard rhs with special char %c)", singleCharExpr.ch);
                         return false;
                     } else {
-                        System.out.printf("(char match wildcard escape rhs %c)", singleCharExpr.ch);
+                        Logger.getInstance().printf("RegularParse", "(char match wildcard escape rhs %c)", singleCharExpr.ch);
                         return true;
                     }
                 }
                 return true;
             }
-            System.out.printf("(char match %c %c)", this.ch, singleCharExpr.ch);
+            Logger.getInstance().printf("RegularParse", "(char match %c %c)", this.ch, singleCharExpr.ch);
             return singleCharExpr.ch == this.ch;
         }
 
@@ -491,6 +497,8 @@ public class RegularSymbolUtil {
             graph.getSource().addNonDetermined(graphCharList.getSource());
             graphChar.getDest().addNonDetermined(graph.getDest());
             graphCharList.getDest().addNonDetermined(graph.getDest());
+            graphChar.getError().addNonDetermined(graph.getError());
+            graphCharList.getError().addNonDetermined(graph.getError());
             return graph;
         }
 
@@ -530,7 +538,7 @@ public class RegularSymbolUtil {
                 assert left.getChar() < right.getChar();
                 RegularGraph graph = new RegularGraph();
                 graph.breakSourceAndDest();
-                var rangeNode = new RegularRangeNode(left.getChar(), right.getChar(), graph.getDest());
+                var rangeNode = new RegularRangeNode(left.getChar(), right.getChar(), graph.getDest(), graph.getError());
                 graph.getSource().addNonDetermined(rangeNode);
                 return graph;
             } else {
@@ -555,6 +563,8 @@ public class RegularSymbolUtil {
             graph.getSource().addNonDetermined(graphRangeList.getSource());
             graphChar.getDest().addNonDetermined(graph.getDest());
             graphRangeList.getDest().addNonDetermined(graph.getDest());
+            graphChar.getError().addNonDetermined(graph.getError());
+            graphRangeList.getError().addNonDetermined(graph.getError());
             return graph;
         }
 
@@ -614,7 +624,13 @@ public class RegularSymbolUtil {
         @Override
         public Object afterMatch(int sentenceIndex, ContextFreeSentence matchedSentence, List<Object> childAttributes) throws InvalidAlgorithmParameterException {
             assert childAttributes.size() == 4;
-            return new RegularExceptGraph((RegularGraph) childAttributes.get(2));
+            RegularGraph graph = new RegularGraph();
+            graph.breakSourceAndDest();
+            RegularGraph exceptedGraph = (RegularGraph) childAttributes.get(2);
+            exceptedGraph.getError().addNonDetermined(graph.getDest());
+            exceptedGraph.getDest().addNonDetermined(graph.getError());
+            graph.getSource().addNonDetermined(exceptedGraph.getSource());
+            return graph;
         }
     }
 }

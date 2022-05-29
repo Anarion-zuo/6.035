@@ -19,9 +19,11 @@ public class RegularNode {
     protected int id;
     protected final HashMap<Character, RegularNode> determMap = new HashMap<>();
     protected final HashSet<RegularNode> nondeterminedSet = new HashSet<>();
+    protected final RegularNode errorNode;
 
-    public RegularNode() {
+    public RegularNode(RegularNode errorNode) {
         id = idGenerator.make();
+        this.errorNode = errorNode;
     }
 
     @Override
@@ -42,7 +44,11 @@ public class RegularNode {
     }
 
     public RegularNode getDetermined(char ch) {
-        return determMap.get(ch);
+        var next = determMap.get(ch);
+        if (next == null) {
+            return errorNode;
+        }
+        return next;
     }
 
     public void addDetermined(char ch, RegularNode node) throws InvalidAlgorithmParameterException {

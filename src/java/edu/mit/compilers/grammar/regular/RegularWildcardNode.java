@@ -5,11 +5,12 @@ import java.security.InvalidAlgorithmParameterException;
 public class RegularWildcardNode extends RegularNode {
     private RegularNode nextNode = null;
 
-    public RegularWildcardNode() {
-
+    public RegularWildcardNode(RegularNode errorNode) {
+        super(errorNode);
     }
 
-    public RegularWildcardNode(RegularNode nextNode) {
+    public RegularWildcardNode(RegularNode nextNode, RegularNode errorNode) {
+        super(errorNode);
         this.nextNode = nextNode;
     }
 

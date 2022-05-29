@@ -8,9 +8,9 @@ public class RegularGraph {
     protected final RegularNode error;
 
     public RegularGraph() {
-        dest = new RegularNode();
-        source = new RegularNode();
-        error = new RegularNode();
+        error = new RegularNode(null);
+        dest = new RegularNode(error);
+        source = new RegularNode(error);
         source.addNonDetermined(dest);
     }
 

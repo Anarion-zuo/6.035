@@ -7,7 +7,8 @@ public class RegularRangeNode extends RegularNode {
     private final char lower, higher;
     private final RegularNode next;
 
-    public RegularRangeNode(char lower, char higher, RegularNode next) {
+    public RegularRangeNode(char lower, char higher, RegularNode next, RegularNode errorNode) {
+        super(errorNode);
         if (lower > higher) {
             try {
                 throw new InvalidAlgorithmParameterException();
@@ -30,6 +31,6 @@ public class RegularRangeNode extends RegularNode {
         if (ch <= higher && ch >= lower) {
             return next;
         }
-        return null;
+        return errorNode;
     }
 }
