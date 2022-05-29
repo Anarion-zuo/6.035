@@ -145,30 +145,43 @@ public class RegularExprParseTest {
         contructionTestTemplate("[a-c0-3]", "1", true);
         contructionTestTemplate("[a-c0-3]", "3", true);
         contructionTestTemplate("[a-c0-3]", ";", false);
-//
-//        contructionTestTemplate("[^abc]", "a", false);
-//        contructionTestTemplate("[^abc]", "b", false);
-//        contructionTestTemplate("[^abc]", "c", false);
-//        contructionTestTemplate("[^abc]", "1", true);
-//        contructionTestTemplate("[^abc]", "2", true);
-//
-//        contructionTestTemplate("[^a-c]", "a", false);
-//        contructionTestTemplate("[^a-c]", "b", false);
-//        contructionTestTemplate("[^a-c]", "c", false);
-//        contructionTestTemplate("[^a-c]", "9", true);
-//        contructionTestTemplate("[^a-c0-3]", "1", false);
-//        contructionTestTemplate("[^a-c0-3]", "3", false);
-//        contructionTestTemplate("[^a-c0-3]", ";", true);
-//
-//        contructionTestTemplate("[^ab\\|]", "|", false);
+
         contructionTestTemplate("[a]|[bc]", "b", true);
         contructionTestTemplate("[a]|[bc]", "a", true);
         contructionTestTemplate("[a]|[bc]", "c", true);
         contructionTestTemplate("[a]|[bc]", "d", false);
         contructionTestTemplate("[bc]*", "bbccccbbc", true);
         contructionTestTemplate("[bc]*", "bbcaccbbc", false);
-//        contructionTestTemplate("[^bc]*", "bbccb", false);
-//        contructionTestTemplate("[^b]*", "aalle", true);
+//
+    }
+
+
+    @Test
+    public void exceptTest() {
+        contructionTestTemplate("[^abc]", "a", false);
+        contructionTestTemplate("[^abc]", "b", false);
+        contructionTestTemplate("[^abc]", "c", false);
+        contructionTestTemplate("[^abc]", "1", true);
+        contructionTestTemplate("[^abc]", "2", true);
+
+        contructionTestTemplate("[^a-c]", "a", false);
+        contructionTestTemplate("[^a-c]", "b", false);
+        contructionTestTemplate("[^a-c]", "c", false);
+        contructionTestTemplate("[^a-c]", "9", true);
+        contructionTestTemplate("[^a-c0-3]", "1", false);
+        contructionTestTemplate("[^a-c0-3]", "3", false);
+        contructionTestTemplate("[^a-c0-3]", ";", true);
+        contructionTestTemplate("[^ab\\|]", "|", false);
+        contructionTestTemplate("[^bc]*", "bbccb", false);
+        contructionTestTemplate("[^bc]*", "bbacb", false);
+        contructionTestTemplate("[^b]*", "aalle", true);
+        contructionTestTemplate("[^b]*", "baaaa", false);
+
+        contructionTestTemplate("[^b][^a]", "12", true);
+        contructionTestTemplate("[^b][^a]", "ba", false);
+        contructionTestTemplate("[^b][^a]", "b1", false);
+        contructionTestTemplate("[^b][^a]", "1a", false);
+
     }
 
     @Test
@@ -245,4 +258,5 @@ public class RegularExprParseTest {
         contructionTestTemplate("1234?", "123456", false);
         contructionTestTemplate("1234?", "1234567", false);
     }
+
 }

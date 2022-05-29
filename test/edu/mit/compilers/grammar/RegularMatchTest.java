@@ -39,7 +39,7 @@ public class RegularMatchTest {
     @Test
     public void alternateCharMatchTest() throws InvalidAlgorithmParameterException {
         // Construct a|b
-        RegularNode m1 = new RegularNode(), m2 = new RegularNode();
+        RegularNode m1 = new RegularNode(null), m2 = new RegularNode(null);
         RegularGraph graph = new RegularGraph();
         graph.getSource().addDetermined('a', m1);
         graph.getSource().addDetermined('b', m2);
