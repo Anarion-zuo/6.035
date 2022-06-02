@@ -5,13 +5,18 @@ package edu.mit.compilers.grammar.token;
 public class Token {
     protected final String matchedText;
     protected boolean matched = false;
+    protected String inspectMessage;
 
     public Token(String matchedText) {
         this.matchedText = matchedText;
     }
 
-    public String inspect() {
+    protected String inspect() {
         return "";
+    }
+
+    protected final void callInspect() {
+        inspectMessage = inspect();
     }
 
     public boolean isEOF() {
@@ -22,7 +27,4 @@ public class Token {
         return "EMPTY_TOKEN";
     }
 
-    public class Report {
-
-    }
 }

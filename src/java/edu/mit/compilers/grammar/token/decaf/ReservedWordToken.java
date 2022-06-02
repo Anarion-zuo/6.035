@@ -9,7 +9,7 @@ public class ReservedWordToken extends DecafToken {
     }
 
     @Override
-    public String inspect() {
+    protected String inspect() {
         if (word.equals(matchedText)) {
             matched = true;
             return "";

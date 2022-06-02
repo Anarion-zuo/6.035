@@ -1,0 +1,30 @@
+# reserved words
+bool {bool}
+break {break}
+import {import}
+continue {continue}
+else {else}
+false {false}
+for {for}
+while {while}
+if {if}
+int {int}
+return {return}
+len {len}
+true {true}
+void {void}
+
+# comments
+singleline_comment {//.*\n}
+multiline_comment {/\*.*\*/}
+
+# ignores
+whitespace {( |\n|\t)*}
+
+# literal
+string_literal {"([^"]|\")*"}
+char_literal {('[^']')|('\.')}
+hex_literal {0x[0-9a-fA-F]}
+dec_literal {[1-9][0-9]*}
+
+identifier {[^"'/\*][^"'/\*]*}

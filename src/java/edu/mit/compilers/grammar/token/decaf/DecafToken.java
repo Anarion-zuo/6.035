@@ -11,6 +11,26 @@ public class DecafToken extends Token {
             "while", "if", "int", "return", "len", "true", "void"
     ));
 
+    protected static char escapeCharacter(char ch) {
+        switch (ch) {
+            case 'r' -> {
+                return '\r';
+            }
+            case 'n' -> {
+                return '\n';
+            }
+            case 't' -> {
+                return '\t';
+            }
+            case '\\' -> {
+                return '\\';
+            }
+            default -> {
+                return ch;
+            }
+        }
+    }
+
     public DecafToken(String matchedText) {
         super(matchedText);
     }

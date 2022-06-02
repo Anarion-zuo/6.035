@@ -8,7 +8,7 @@ public class Identifier extends DecafToken {
     }
 
     @Override
-    public String inspect() {
+    protected String inspect() {
         String msg = "invalid identifier";
 
         // check first char

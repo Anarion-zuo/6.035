@@ -14,7 +14,7 @@ public class IntLiteral extends DecafToken {
     }
 
     @Override
-    public String inspect() {
+    protected String inspect() {
         if (matched) {
             return "";
         }
