@@ -1,7 +1,7 @@
 package edu.mit.compilers.grammar.token.decaf;
 
 public abstract class IntLiteral extends DecafToken {
-    protected int parsedNumber;
+    protected long parsedNumber;
 
     public IntLiteral(String matchedText) {
         super(matchedText);
@@ -12,7 +12,7 @@ public abstract class IntLiteral extends DecafToken {
         return "INTLITERAL";
     }
 
-    protected abstract int parseNumber() throws NumberFormatException;
+    protected abstract long parseNumber() throws NumberFormatException;
 
     @Override
     protected final String inspect() {
