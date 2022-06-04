@@ -8,19 +8,19 @@ public class Token {
     protected String inspectMessage;
     protected int textRow = -1, textCol = -1;
 
-    public int getTextRow() {
+    public final int getTextRow() {
         return textRow;
     }
 
-    public void setTextRow(int textRow) {
+    public final void setTextRow(int textRow) {
         this.textRow = textRow;
     }
 
-    public int getTextCol() {
+    public final int getTextCol() {
         return textCol;
     }
 
-    public void setTextCol(int textCol) {
+    public final void setTextCol(int textCol) {
         this.textCol = textCol;
     }
 
@@ -48,7 +48,7 @@ public class Token {
         return "";
     }
 
-    public final String getText() {
+    public String getText() {
         String prefix = textRow + " " + getTokenName() + " " + getTokenAttributeContent();
         if (matched) {
             return prefix;
