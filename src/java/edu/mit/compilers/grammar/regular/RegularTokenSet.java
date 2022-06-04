@@ -1,10 +1,9 @@
 package edu.mit.compilers.grammar.regular;
 
-import com.google.common.base.Function;
 import edu.mit.compilers.grammar.token.DecafTokenFactory;
 import edu.mit.compilers.grammar.token.Token;
-import edu.mit.compilers.grammar.token.decaf.DecafToken;
-import edu.mit.compilers.grammar.token.decaf.TokenCannotMatchException;
+import edu.mit.compilers.grammar.token.TokenMismatchException;
+import edu.mit.compilers.grammar.token.decaf.TokenAmbiguousException;
 import edu.mit.compilers.grammar.token.decaf.UndefinedTokenException;
 
 import java.io.*;
@@ -92,6 +91,15 @@ public class RegularTokenSet {
 
         private SingleTokenIterator(List<RegularGraph.Iterator> iteratorList) {
             this.iteratorList = iteratorList;
+        }
+
+        public boolean hasNext() {
+            for (var iter : iteratorList) {
+                if (iter.hasNext()) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public LinkedList<String> next(char ch) {
@@ -214,6 +222,16 @@ public class RegularTokenSet {
         return new LinkedList<>(matchLongest(input, iterator(), 0));
     }
 
+    private static String readByteBufferAsString(ByteBuffer buffer, int index, int length) {
+        byte[] dst = new byte[length];
+        buffer.position(index).get(dst, 0, length);
+        return new String(dst);
+    }
+
+    private static char readByteBufferAsChar(ByteBuffer buffer, int index) {
+        return (char) buffer.get(index);
+    }
+
     public LinkedList<MatchInfo> matchLongest(String input) {
         return matchLongest(input.toCharArray());
     }
@@ -222,28 +240,21 @@ public class RegularTokenSet {
         private final int leftIndex, limitIndex;
         private final ByteBuffer buffer;
         private int curIndex = -1;
-        private static class IteratorInfo {
-            final SingleTokenIterator singleIterator;
-            final int beginIndex;
-
-            public IteratorInfo(SingleTokenIterator singleIterator, int beginIndex) {
-                this.singleIterator = singleIterator;
-                this.beginIndex = beginIndex;
-            }
-        }
-        private LinkedList<IteratorInfo> iterators = new LinkedList<>();
+        //private LinkedList<IteratorInfo> iterators = new LinkedList<>();
+        private SingleTokenIterator iterator;
 
         private StreamIterator(int leftIndex, int limitIndex, ByteBuffer buffer) {
             this.leftIndex = leftIndex;
             this.limitIndex = limitIndex;
             this.buffer = buffer;
             this.curIndex = leftIndex;
-            this.iterators.add(new IteratorInfo(
+            this.iterator = new SingleTokenIterator();
+            /*this.iterators.add(new IteratorInfo(
                     new SingleTokenIterator(), this.curIndex
-            ));
+            ));*/
         }
 
-        protected void next(char ch) throws TokenCannotMatchException {
+        /*protected void next(char ch) throws TokenCannotMatchException {
             if (iterators.isEmpty()) {
                 iterators.add(new IteratorInfo(new SingleTokenIterator(), curIndex));
             }
@@ -259,9 +270,9 @@ public class RegularTokenSet {
             if (iterators.isEmpty()) {
                 throw new TokenCannotMatchException();
             }
-        }
+        }*/
 
-        public boolean next() throws TokenCannotMatchException {
+        /*public boolean next() throws TokenCannotMatchException {
             if (curIndex >= limitIndex) {
                 return false;
             }
@@ -269,6 +280,83 @@ public class RegularTokenSet {
             char ch = (char) buffer.get(curIndex);
             next(ch);
             return true;
+        }*/
+
+        private static class TokenMatchInfo {
+            private final Token token;
+            private final int length;
+
+            public TokenMatchInfo(Token token, int length) {
+                this.token = token;
+                this.length = length;
+            }
+        }
+
+        private static Token matchTokenFromIndex(SingleTokenIterator beginIterator, ByteBuffer buffer, int beginIndex) throws TokenAmbiguousException, UndefinedTokenException {
+            int curIndex = beginIndex;
+            SingleTokenIterator iterator = beginIterator.clone();
+            LinkedList<Token> matchedTokenList = new LinkedList<>();
+            while (iterator.hasNext()) {
+                if (curIndex >= buffer.limit()) {
+                    break;
+                }
+                var tokenNameList = iterator.next(readByteBufferAsChar(buffer, curIndex));
+                for (var tokenName : tokenNameList) {
+                    Token token = DecafTokenFactory.getInstance().makeToken(tokenName, readByteBufferAsString(buffer, beginIndex, curIndex - beginIndex + 1));
+                    try {
+                        token.afterMatching();
+                    } catch (TokenMismatchException ignore) {
+                    }
+                    if (token.isMatched()) {
+                        matchedTokenList.add(token);
+                    }
+                }
+                ++curIndex;
+            }
+            if (matchedTokenList.size() == 0)  {
+                return null;
+            }
+            int maxMatchedLength = 0;
+            for (var token : matchedTokenList) {
+                if (token.isMatched()) {
+                    maxMatchedLength = Math.max(maxMatchedLength, token.getMatchedLength());
+                }
+            }
+            LinkedList<Token> maxMatchedTokenList = new LinkedList<>();
+            for (var token : matchedTokenList) {
+                if (token.isMatched() && token.getMatchedLength() == maxMatchedLength) {
+                    maxMatchedTokenList.add(token);
+                }
+            }
+            if (maxMatchedTokenList.size() > 1) {
+                throw new TokenAmbiguousException();
+            }
+            if (maxMatchedTokenList.isEmpty()) {
+                return null;
+            }
+            Token token = maxMatchedTokenList.getLast();
+            try {
+                token.afterMatching();
+            } catch (TokenMismatchException e) {
+                throw new RuntimeException(e);
+            }
+            return token;
+        }
+
+        public Token nextToken() throws TokenAmbiguousException, UndefinedTokenException {
+            if (iterator == null) {
+                iterator = new SingleTokenIterator();
+            }
+            Token token = matchTokenFromIndex(iterator, buffer, curIndex);
+            if (token == null) {
+                return null;
+            }
+            curIndex += token.getMatchedLength();
+            return token;
+        }
+
+        public boolean hasNext() {
+            return curIndex < limitIndex;
         }
 
         private static class IteratorMatchInfo {
@@ -281,7 +369,7 @@ public class RegularTokenSet {
             }
         }
 
-        private LinkedList<Token> getGeneralMatch(Function<SingleTokenIterator, LinkedList<MatchInfo>> matchMethod) {
+        /*private LinkedList<Token> getGeneralMatch(Function<SingleTokenIterator, LinkedList<MatchInfo>> matchMethod) {
             LinkedList<IteratorMatchInfo> candidates = new LinkedList<>();
             int maxLength = 0;
             for (var info : iterators) {
@@ -320,9 +408,9 @@ public class RegularTokenSet {
                 iterators.add(new IteratorInfo(new SingleTokenIterator(), curIndex));
             }
             return result;
-        }
+        }*/
 
-        public LinkedList<Token> getMatched() {
+        /*public LinkedList<Token> getMatched() {
             return getGeneralMatch(SingleTokenIterator::matchPrecisely);
         }
 
@@ -333,7 +421,7 @@ public class RegularTokenSet {
         public void acceptMatched() {
             iterators.clear();
             iterators.add(new IteratorInfo(new SingleTokenIterator(), curIndex));
-        }
+        }*/
     }
 
 
