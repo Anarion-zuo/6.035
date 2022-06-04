@@ -24,7 +24,7 @@ public class DecafTokenTest {
 
     @Test
     public void simpleTest() throws IOException, TokenAmbiguousException, TokenCannotMatchException {
-        var file = new RandomAccessFile("resources/provided/scanner/hexlit1", "rw");
+        var file = new RandomAccessFile("resources/provided/scanner/number2", "rw");
         DecafScanner scanner = new DecafScanner(file);
         Token token = null;
         while ((token = scanner.nextToken()) != null) {
@@ -42,7 +42,7 @@ public class DecafTokenTest {
         @Override
         public void print(String s) {
             super.print(s);
-            builder.append(s);
+            builder.append(s + '\n');
         }
 
         public String getCollected() {
@@ -51,6 +51,7 @@ public class DecafTokenTest {
     }
 
     private void testScannerProvidedFile(String fileName, boolean formatCorrect) throws IOException, TokenAmbiguousException, TokenCannotMatchException {
+        System.out.println("==== testing: " + fileName + " " + (formatCorrect ? "correct" : "incorrect") + " ====");
         var inputFile = new RandomAccessFile(
                 "resources/provided/scanner/" + fileName,
                 "rw"
@@ -80,5 +81,21 @@ public class DecafTokenTest {
     @Test
     public void testScannerProvided() throws TokenAmbiguousException, TokenCannotMatchException, IOException {
         testScannerProvidedFile("char1", true);
+        testScannerProvidedFile("char2", true);
+        testScannerProvidedFile("char3", false);
+        testScannerProvidedFile("char5", false);
+        testScannerProvidedFile("char6", false);
+        testScannerProvidedFile("char7", false);
+        testScannerProvidedFile("char8", false);
+        testScannerProvidedFile("char9", false);
+        testScannerProvidedFile("hexlit1", true);
+        testScannerProvidedFile("hexlit2", true);
+        //testScannerProvidedFile("hexlit3", false);
+        testScannerProvidedFile("id1", true);
+        testScannerProvidedFile("id2", false);
+        testScannerProvidedFile("id3", true);
+        testScannerProvidedFile("number1", true);
+        testScannerProvidedFile("number2", true);
+        testScannerProvidedFile("string1", true);
     }
 }
