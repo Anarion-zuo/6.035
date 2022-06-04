@@ -53,6 +53,6 @@ public class CharLiteral extends DecafToken {
 
     @Override
     protected String getTokenAttributeContent() {
-        return "'" + reverseEscapeCharacter(matchedChar) + "'";
+        return matchedText;
     }
 }
