@@ -6,8 +6,8 @@ public class DecLiteral extends IntLiteral {
     }
 
     @Override
-    protected int parseNumber() {
-        return Integer.parseInt(matchedText, 10);
+    protected long parseNumber() {
+        return Long.parseLong(matchedText, 10);
     }
 
     @Override

@@ -6,7 +6,7 @@ public class HexLiteral extends IntLiteral {
     }
 
     @Override
-    protected int parseNumber() {
+    protected long parseNumber() {
         if (!matchedText.startsWith("0x")) {
             throw new NumberFormatException();
         }
@@ -14,11 +14,11 @@ public class HexLiteral extends IntLiteral {
             throw new NumberFormatException();
         }
         String unwrappedText = matchedText.substring(2);
-        return Integer.parseInt(unwrappedText, 16);
+        return Long.parseLong(unwrappedText, 16);
     }
 
     @Override
     protected String getTokenAttributeContent() {
-        return String.format("0x%x", parsedNumber);
+        return matchedText;
     }
 }
