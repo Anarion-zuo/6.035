@@ -4,8 +4,8 @@ import edu.mit.compilers.grammar.cfg.ContextFreeEpsilonSymbol;
 import edu.mit.compilers.grammar.cfg.ContextFreeSentence;
 import edu.mit.compilers.grammar.cfg.ContextFreeSymbol;
 import edu.mit.compilers.grammar.cfg.ContextFreeTerminalSymbol;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,29 +61,29 @@ public class ContextFreeSymbolTest {
         System.out.println("==========================");
         var stream1 = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'), new CharSymbol('c'));
         var nextIterator = root.match(stream1.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
 
         System.out.println("==========================");
         stream1 = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'), new CharSymbol('d'));
         nextIterator = root.match(stream1.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
 
         System.out.println("==========================");
         stream1 = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'), new CharSymbol('e'));
         nextIterator = root.match(stream1.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
 
         // incorrect match
         System.out.println("==========================");
         stream1 = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'), new CharSymbol('a'));
         nextIterator = root.match(stream1.iterator()).nextIterator;
-        Assert.assertNull(nextIterator);
+        Assertions.assertNull(nextIterator);
 
         // short match
         System.out.println("==========================");
         stream1 = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'));
         nextIterator = root.match(stream1.iterator()).nextIterator;
-        Assert.assertNull(nextIterator);
+        Assertions.assertNull(nextIterator);
     }
 
     class CharListSymbol extends ContextFreeSymbol {
@@ -102,15 +102,15 @@ public class ContextFreeSymbolTest {
         var listSymbol = new CharListSymbol('a');
         var stream = new ContextFreeSentence(new CharSymbol('a'));
         var nextIterator = listSymbol.match(stream.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
 
         stream = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('a'));
         nextIterator = listSymbol.matchExaust(stream.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
 
         stream = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'));
         nextIterator = listSymbol.matchExaust(stream.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
     }
 
     @Test
@@ -126,34 +126,34 @@ public class ContextFreeSymbolTest {
         System.out.println("==========================");
         var stream = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'), new CharSymbol('c'));
         var nextIterator = root.match(stream.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
 
         System.out.println("==========================");
         stream = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'), new CharSymbol('d'));
         nextIterator = root.match(stream.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
 
         System.out.println("==========================");
         stream = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'), new CharSymbol('e'));
         nextIterator = root.match(stream.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
 
         // incorrect match
         System.out.println("==========================");
         stream = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'), new CharSymbol('a'));
         nextIterator = root.matchExaust(stream.iterator()).nextIterator;
-        Assert.assertNull(nextIterator);
+        Assertions.assertNull(nextIterator);
 
         // short match
         System.out.println("==========================");
         stream = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'));
         nextIterator = root.matchExaust(stream.iterator()).nextIterator;
-        Assert.assertNull(nextIterator);
+        Assertions.assertNull(nextIterator);
 
         System.out.println("==========================");
         stream = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'), new CharSymbol('a'));
         nextIterator = root.matchExaust(stream.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
     }
 
     @Test
@@ -167,28 +167,28 @@ public class ContextFreeSymbolTest {
         System.out.println("==========================");
         var stream1 = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'), new CharSymbol('c'));
         var nextIterator = root.match(stream1.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
 
         System.out.println("==========================");
         stream1 = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'), new CharSymbol('d'));
         nextIterator = root.match(stream1.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
 
         System.out.println("==========================");
         stream1 = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'), new CharSymbol('e'));
         nextIterator = root.match(stream1.iterator()).nextIterator;
-        Assert.assertFalse(nextIterator.hasNext());
+        Assertions.assertFalse(nextIterator.hasNext());
 
         // incorrect match
         System.out.println("==========================");
         stream1 = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'), new CharSymbol('a'));
         nextIterator = root.match(stream1.iterator()).nextIterator;
-        Assert.assertNull(nextIterator);
+        Assertions.assertNull(nextIterator);
 
         // short match
         System.out.println("==========================");
         stream1 = new ContextFreeSentence(new CharSymbol('a'), new CharSymbol('b'));
         nextIterator = root.match(stream1.iterator()).nextIterator;
-        Assert.assertNull(nextIterator);
+        Assertions.assertNull(nextIterator);
     }
 }

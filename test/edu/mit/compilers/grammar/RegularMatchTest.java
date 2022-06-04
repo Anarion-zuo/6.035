@@ -3,8 +3,8 @@ package edu.mit.compilers.grammar;
 import com.sun.source.tree.AssertTree;
 import edu.mit.compilers.grammar.regular.RegularGraph;
 import edu.mit.compilers.grammar.regular.RegularNode;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.security.InvalidAlgorithmParameterException;
 
@@ -15,14 +15,14 @@ public class RegularMatchTest {
         RegularGraph graph = new RegularGraph();
         var iter = graph.iterator();
         var iterator = graph.iterator();
-        Assert.assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.next('a');
-        Assert.assertTrue(iterator.invalid());
-        iterator.next('a');
-        iterator.next('a');
+        Assertions.assertTrue(iterator.invalid());
         iterator.next('a');
         iterator.next('a');
-        Assert.assertTrue(iterator.invalid());
+        iterator.next('a');
+        iterator.next('a');
+        Assertions.assertTrue(iterator.invalid());
     }
 
     @Test
@@ -31,9 +31,9 @@ public class RegularMatchTest {
         graph.getSource().addDetermined('a', graph.getDest());
         graph.getSource().removeNondetermined(graph.getDest());
         var iter = graph.iterator();
-        Assert.assertTrue(iter.hasNext());
+        Assertions.assertTrue(iter.hasNext());
         iter.next('a');
-        Assert.assertFalse(iter.hasNext());
+        Assertions.assertFalse(iter.hasNext());
     }
 
     @Test
@@ -49,17 +49,17 @@ public class RegularMatchTest {
 
         // match
         var iter1 = graph.iterator();
-        Assert.assertTrue(iter1.hasNext());
+        Assertions.assertTrue(iter1.hasNext());
         iter1.next('a');
-        Assert.assertFalse(iter1.hasNext());
+        Assertions.assertFalse(iter1.hasNext());
 
         var iter2 = graph.iterator();
-        Assert.assertTrue(iter2.hasNext());
+        Assertions.assertTrue(iter2.hasNext());
         iter2.next('b');
-        Assert.assertFalse(iter2.hasNext());
+        Assertions.assertFalse(iter2.hasNext());
 
         var iter3 = graph.iterator();
         iter3.next('9');
-        Assert.assertTrue(iter3.invalid());
+        Assertions.assertTrue(iter3.invalid());
     }
 }
