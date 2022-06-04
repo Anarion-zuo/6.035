@@ -16,6 +16,10 @@ public class Identifier extends DecafToken {
     protected String inspect() {
         String msg = "invalid identifier";
 
+        if (matchedText.length() == 0) {
+            matched = false;
+            return "expecting identifier, got empty string";
+        }
         // check first char
         char firstChar = matchedText.charAt(0);
         boolean isIdentifier = true;

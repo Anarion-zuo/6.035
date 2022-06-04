@@ -13,9 +13,10 @@ class Main {
       InputStream inputStream = CLI.infile == null ?
           System.in : new java.io.FileInputStream(CLI.infile);
       PrintStream outputStream = CLI.outfile == null ? System.out : new java.io.PrintStream(new java.io.FileOutputStream(CLI.outfile));
+      RandomAccessFile inputFile = new RandomAccessFile(CLI.infile, "rw");
       if (CLI.target == Action.SCAN) {
         DecafScanner scanner =
-            new DecafScanner(new DataInputStream(inputStream));
+            new DecafScanner(inputFile);
         scanner.setTrace(CLI.debug);
         Token token;
         boolean done = false;
@@ -37,7 +38,7 @@ class Main {
       } else if (CLI.target == Action.PARSE ||
                  CLI.target == Action.DEFAULT) {
         DecafScanner scanner =
-            new DecafScanner(new DataInputStream(inputStream));
+            new DecafScanner(inputFile);
         DecafParser parser = new DecafParser(scanner);
         parser.setTrace(CLI.debug);
         parser.program();

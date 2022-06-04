@@ -8,6 +8,22 @@ public class Token {
     protected String inspectMessage;
     protected int textRow = -1, textCol = -1;
 
+    public int getTextRow() {
+        return textRow;
+    }
+
+    public void setTextRow(int textRow) {
+        this.textRow = textRow;
+    }
+
+    public int getTextCol() {
+        return textCol;
+    }
+
+    public void setTextCol(int textCol) {
+        this.textCol = textCol;
+    }
+
     public Token(String matchedText) {
         this.matchedText = matchedText;
     }
@@ -49,5 +65,13 @@ public class Token {
 
     public final boolean isMatched() {
         return matched;
+    }
+
+    public boolean shouldIgnore() {
+        return false;
+    }
+
+    public final int getMatchedLength() {
+        return matchedText.length();
     }
 }

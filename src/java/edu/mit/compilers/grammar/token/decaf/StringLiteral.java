@@ -34,6 +34,10 @@ public class StringLiteral extends DecafToken {
 
     @Override
     protected String inspect() {
+        if (matchedText.length() < 2) {
+            matched = false;
+            return "expecting string literal, got expression too short";
+        }
         if (matchedText.charAt(0) != '\"' || matchedText.charAt(matchedText.length() - 1) != '\"') {
             matched = false;
             return "mismatched quotes in string literal";

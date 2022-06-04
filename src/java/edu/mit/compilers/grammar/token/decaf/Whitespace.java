@@ -31,6 +31,11 @@ public class Whitespace extends DecafToken {
 
     @Override
     protected String getTokenAttributeContent() {
-        return "EMPTY_SPACES";
+        return "EMPTY_SPACE(S)";
+    }
+
+    @Override
+    public boolean shouldIgnore() {
+        return true;
     }
 }

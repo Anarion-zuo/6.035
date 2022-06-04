@@ -1,9 +1,9 @@
 package edu.mit.compilers.grammar.token.decaf;
 
-public class ReservedWordToken extends DecafToken {
+public class ReservedWord extends DecafToken {
     protected String word;
 
-    public ReservedWordToken(String matchedText, String word) {
+    public ReservedWord(String matchedText, String word) {
         super(matchedText);
         this.word = word;
     }

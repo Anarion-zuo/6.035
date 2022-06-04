@@ -15,17 +15,17 @@ true {true}
 void {void}
 
 # comments
-singleline_comment {//.*\n}
+singleline_comment {//[^\n]*\n}
 multiline_comment {/\*.*\*/}
 
 # ignores
-whitespace {( |\n|\t)*}
+whitespace {( |\t)*}
 newline {\n|\r}
 
 # literal
 string_literal {"([^"]|\")*"}
-char_literal {('[^'"\n]')|('\.')}
-hex_literal {0x[0-9a-fA-F]}
+char_literal {('[^'"\n\t]')|('\\[nrt]')}
+hex_literal {0x[0-9a-fA-F][0-9a-fA-F]*}
 dec_literal {[1-9][0-9]*}
 
-identifier {[^"'/\* ][^"'/\* ]*}
+identifier {([^"'/\* \n\r\t])([^"'/\* \n\r\t])*}

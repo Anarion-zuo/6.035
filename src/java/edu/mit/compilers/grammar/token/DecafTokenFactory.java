@@ -2,6 +2,7 @@ package edu.mit.compilers.grammar.token;
 
 import com.google.common.base.CaseFormat;
 import edu.mit.compilers.grammar.token.decaf.DecafToken;
+import edu.mit.compilers.grammar.token.decaf.ReservedWord;
 import edu.mit.compilers.grammar.token.decaf.UndefinedTokenException;
 
 import java.lang.reflect.Constructor;
@@ -34,6 +35,9 @@ public class DecafTokenFactory {
     }
 
     public DecafToken makeToken(String tokenName, String matchedText) throws UndefinedTokenException {
+        if (DecafToken.isReservedWord(tokenName)) {
+            return new ReservedWord(matchedText, tokenName);
+        }
         var tokenClass = findClassByTokenName(tokenName);
         Constructor<?> tokenConstructor = null;
         try {

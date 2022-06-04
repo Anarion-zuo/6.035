@@ -12,7 +12,7 @@ public class Newline extends DecafToken {
 
     @Override
     protected String inspect() {
-        if (matchedText.length() > 1) {
+        if (matchedText.length() != 1) {
             matched = false;
             return String.format("expecting new line, got %d characters", matchedText.length());
         }
@@ -32,5 +32,10 @@ public class Newline extends DecafToken {
     @Override
     protected String getTokenAttributeContent() {
         return "'\\n'";
+    }
+
+    @Override
+    public boolean shouldIgnore() {
+        return true;
     }
 }

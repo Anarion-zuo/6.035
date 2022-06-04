@@ -1,8 +1,10 @@
 package edu.mit.compilers.grammar.regular;
 
+import com.google.common.base.Function;
 import edu.mit.compilers.grammar.token.DecafTokenFactory;
 import edu.mit.compilers.grammar.token.Token;
 import edu.mit.compilers.grammar.token.decaf.DecafToken;
+import edu.mit.compilers.grammar.token.decaf.TokenCannotMatchException;
 import edu.mit.compilers.grammar.token.decaf.UndefinedTokenException;
 
 import java.io.*;
@@ -93,17 +95,16 @@ public class RegularTokenSet {
         }
 
         public LinkedList<String> next(char ch) {
-            LinkedList<String> result = new LinkedList<>();
             for (var iter : iteratorList) {
                 if (iter.invalid()) {
                     continue;
                 }
                 iter.next(ch);
-                if (iter.hasMatch()) {
-                    var tokenName = tokenMap.get(iter.getDestId());
-                    assert tokenName != null;
-                    result.add(tokenName);
-                }
+            }
+            var matchedInfos = matchPrecisely();
+            LinkedList<String> result = new LinkedList<>();
+            for (var info : matchedInfos) {
+                result.add(info.tokenName);
             }
             return result;
         }
@@ -117,6 +118,18 @@ public class RegularTokenSet {
                 }
                 var tokenName = tokenMap.get(iter.getDestId());
                 result.add(new MatchInfo(iter.getNextCount(), tokenName));
+            }
+            return result;
+        }
+
+        public LinkedList<MatchInfo> matchPrecisely() {
+            LinkedList<MatchInfo> result = new LinkedList<>();
+            for (var iter : iteratorList) {
+                if (iter.hasMatch()) {
+                    var tokenName = tokenMap.get(iter.getDestId());
+                    assert tokenName != null;
+                    result.add(new MatchInfo(iter.getNextCount(), tokenName));
+                }
             }
             return result;
         }
@@ -230,7 +243,10 @@ public class RegularTokenSet {
             ));
         }
 
-        protected void next(char ch) {
+        protected void next(char ch) throws TokenCannotMatchException {
+            if (iterators.isEmpty()) {
+                iterators.add(new IteratorInfo(new SingleTokenIterator(), curIndex));
+            }
             var newIterators = new LinkedList<IteratorInfo>();
             for (var info : iterators) {
                 //newIterators.add(new IteratorInfo(iter, info.beginIndex));
@@ -241,11 +257,11 @@ public class RegularTokenSet {
             iterators = newIterators;
             ++curIndex;
             if (iterators.isEmpty()) {
-                iterators.add(new IteratorInfo(new SingleTokenIterator(), curIndex));
+                throw new TokenCannotMatchException();
             }
         }
 
-        public boolean next() {
+        public boolean next() throws TokenCannotMatchException {
             if (curIndex >= limitIndex) {
                 return false;
             }
@@ -264,12 +280,14 @@ public class RegularTokenSet {
                 this.beginIndex = beginIndex;
             }
         }
-        public LinkedList<Token> getMatched() {
+
+        private LinkedList<Token> getGeneralMatch(Function<SingleTokenIterator, LinkedList<MatchInfo>> matchMethod) {
             LinkedList<IteratorMatchInfo> candidates = new LinkedList<>();
             int maxLength = 0;
             for (var info : iterators) {
                 var singleIter = info.singleIterator;
-                for (var graphIter : singleIter.mightMatch()) {
+                var graphIterList = matchMethod.apply(singleIter);
+                for (var graphIter : graphIterList) {
                     if (maxLength < graphIter.length) {
                         candidates.clear();
                         maxLength = graphIter.length;
@@ -291,10 +309,8 @@ public class RegularTokenSet {
                     token = DecafTokenFactory.getInstance().makeToken(
                             info.tokenName,
                             new String(matchedChar)
-                            );
-                    if (token.isMatched()) {
-                        result.add(token);
-                    }
+                    );
+                    result.add(token);
                 } catch (UndefinedTokenException ignore) {
 
                 }
@@ -304,6 +320,14 @@ public class RegularTokenSet {
                 iterators.add(new IteratorInfo(new SingleTokenIterator(), curIndex));
             }
             return result;
+        }
+
+        public LinkedList<Token> getMatched() {
+            return getGeneralMatch(SingleTokenIterator::matchPrecisely);
+        }
+
+        public LinkedList<Token> getPossibleMatched() {
+            return getGeneralMatch(SingleTokenIterator::mightMatch);
         }
 
         public void acceptMatched() {

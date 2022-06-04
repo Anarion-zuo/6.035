@@ -35,7 +35,8 @@ public class CharLiteral extends DecafToken {
         if (midChar == '\'' ||
                 midChar == '\n' ||
                 midChar == '\"' ||
-                midChar == '\\') {
+                midChar == '\\' ||
+                midChar == '\t') {
             matched = false;
             return "unexpected char "
                     + String.format("0x%x", (int) midChar);

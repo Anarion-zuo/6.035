@@ -14,4 +14,9 @@ public class Comment extends DecafToken {
     protected final String getTokenAttributeContent() {
         return matchedText;
     }
+
+    @Override
+    public final boolean shouldIgnore() {
+        return true;
+    }
 }

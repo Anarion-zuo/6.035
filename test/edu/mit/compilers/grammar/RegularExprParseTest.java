@@ -152,7 +152,6 @@ public class RegularExprParseTest {
         contructionTestTemplate("[a]|[bc]", "d", false);
         contructionTestTemplate("[bc]*", "bbccccbbc", true);
         contructionTestTemplate("[bc]*", "bbcaccbbc", false);
-//
     }
 
 
@@ -182,6 +181,8 @@ public class RegularExprParseTest {
         contructionTestTemplate("[^b][^a]", "b1", false);
         contructionTestTemplate("[^b][^a]", "1a", false);
 
+        contructionTestTemplate("[^abc][^abc]*", "123", true);
+        contructionTestTemplate("[^abc][^abc]*", "aaa", false);
     }
 
     @Test
