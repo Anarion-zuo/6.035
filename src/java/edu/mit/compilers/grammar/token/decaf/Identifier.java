@@ -9,7 +9,7 @@ public class Identifier extends DecafToken {
     }
 
     private static final HashSet<Character> unAllowedCharacters = new HashSet<>(List.of(
-            '+', '-', '*', '/', ',', ';', '?', '^', ' ', '\'', '\"', '\r', '\n'
+            '+', '-', '*', '/', ',', ';', '?', '^', ' ', '\'', '\"', '\r', '\n', '.'
     ));
 
     @Override
@@ -34,6 +34,12 @@ public class Identifier extends DecafToken {
                 isIdentifier = false;
                 break;
             }
+        }
+
+        // reserved word
+        if (isReservedWord(matchedText)) {
+            matched = false;
+            return matchedText + " is a reserved word, cannot be an identifier";
         }
 
         if (isIdentifier) {
