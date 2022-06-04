@@ -3,10 +3,7 @@
 package edu.mit.compilers.grammar;
 import edu.mit.compilers.grammar.regular.RegularTokenSet;
 import edu.mit.compilers.grammar.token.Token;
-import edu.mit.compilers.grammar.token.decaf.Newline;
-import edu.mit.compilers.grammar.token.decaf.SinglelineComment;
-import edu.mit.compilers.grammar.token.decaf.TokenAmbiguousException;
-import edu.mit.compilers.grammar.token.decaf.TokenCannotMatchException;
+import edu.mit.compilers.grammar.token.decaf.*;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -34,7 +31,7 @@ public class DecafScanner {
         tokenSet = RegularTokenSet.newByConfigFile(new File("resources/grammar/tokens.txt"));
     }
 
-    protected void processMightMatchToken() throws TokenCannotMatchException {
+    /*protected void processMightMatchToken() throws TokenCannotMatchException {
         var tokenList = streamIterator.getPossibleMatched();
         int nonEmptyTokenCount = 0;
         for (var token : tokenList) {
@@ -46,10 +43,10 @@ public class DecafScanner {
         if (nonEmptyTokenCount > 0) {
             throw new TokenCannotMatchException();
         }
-    }
+    }*/
 
     /** might find this useful **/
-    public Token nextToken() throws TokenCannotMatchException, TokenAmbiguousException {
+    /*public Token nextToken() throws TokenCannotMatchException, TokenAmbiguousException {
         if (streamIterator == null) {
             streamIterator = tokenSet.streamIterator(0, buffer.limit(), buffer);
         }
@@ -89,6 +86,34 @@ public class DecafScanner {
             }
         }
         //throw new TokenCannotMatchException();
+    }*/
+
+    public Token nextToken() throws TokenCannotMatchException {
+        if (streamIterator == null) {
+            streamIterator = tokenSet.streamIterator(0, buffer.limit(), buffer);
+        }
+        while (true) {
+            if (!streamIterator.hasNext()) {
+                return null;
+            }
+            Token token = null;
+            try {
+                token = streamIterator.nextToken();
+            } catch (TokenAmbiguousException | UndefinedTokenException e) {
+                throw new RuntimeException(e);
+            }
+            if (token == null || !token.isMatched()) {
+                throw new TokenCannotMatchException();
+            }
+            if (token.getClass() == Newline.class
+                    || token.getClass() == SinglelineComment.class) {
+                ++curRow;
+            }
+            if (!token.shouldIgnore()) {
+                token.setTextRow(curRow);
+                return token;
+            }
+        }
     }
 
     /** Whether to display debug information. */
