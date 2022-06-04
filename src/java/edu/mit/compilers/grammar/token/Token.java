@@ -6,6 +6,7 @@ public class Token {
     protected final String matchedText;
     protected boolean matched = false;
     protected String inspectMessage;
+    protected int textRow = -1, textCol = -1;
 
     public Token(String matchedText) {
         this.matchedText = matchedText;
@@ -23,8 +24,30 @@ public class Token {
         return false;
     }
 
-    public String getText() {
-        return "EMPTY_TOKEN";
+    protected String getTokenName() {
+        return "UNDEFINED_TOKEN";
     }
 
+    protected String getTokenAttributeContent() {
+        return "";
+    }
+
+    public final String getText() {
+        String prefix = textRow + " " + getTokenName() + " " + getTokenAttributeContent();
+        if (matched) {
+            return prefix;
+        }
+        return prefix + ": " + inspectMessage;
+    }
+
+    public final void afterMatching() throws TokenMismatchException {
+        inspectMessage = inspect();
+        if (!matched) {
+            throw new TokenMismatchException(inspectMessage);
+        }
+    }
+
+    public final boolean isMatched() {
+        return matched;
+    }
 }

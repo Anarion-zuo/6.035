@@ -30,7 +30,8 @@ public class DecafScanner {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        if (curChar)
+        //if (curChar)
+        return null;
     }
 
     /** Whether to display debug information. */

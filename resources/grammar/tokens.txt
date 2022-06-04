@@ -20,11 +20,12 @@ multiline_comment {/\*.*\*/}
 
 # ignores
 whitespace {( |\n|\t)*}
+newline {\n|\r}
 
 # literal
 string_literal {"([^"]|\")*"}
-char_literal {('[^']')|('\.')}
+char_literal {('[^'"\n]')|('\.')}
 hex_literal {0x[0-9a-fA-F]}
 dec_literal {[1-9][0-9]*}
 
-identifier {[^"'/\*][^"'/\*]*}
+identifier {[^"'/\* ][^"'/\* ]*}

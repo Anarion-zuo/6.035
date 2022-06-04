@@ -31,6 +31,26 @@ public class DecafToken extends Token {
         }
     }
 
+    protected static String reverseEscapeCharacter(char ch) {
+        switch (ch) {
+            case '\r' -> {
+                return "\\r";
+            }
+            case '\n' -> {
+                return "\\n";
+            }
+            case '\t' -> {
+                return "\\t";
+            }
+            case '\\' -> {
+                return "\\\\";
+            }
+            default -> {
+                return "" + ch;
+            }
+        }
+    }
+
     public DecafToken(String matchedText) {
         super(matchedText);
     }

@@ -1,6 +1,12 @@
 package edu.mit.compilers.grammar.regular;
 
+import edu.mit.compilers.grammar.token.DecafTokenFactory;
+import edu.mit.compilers.grammar.token.Token;
+import edu.mit.compilers.grammar.token.decaf.DecafToken;
+import edu.mit.compilers.grammar.token.decaf.UndefinedTokenException;
+
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 public class RegularTokenSet {
@@ -72,17 +78,17 @@ public class RegularTokenSet {
         }
     }
 
-    public class Iterator {
+    public class SingleTokenIterator {
         private final List<RegularGraph.Iterator> iteratorList;
 
-        public Iterator() {
+        public SingleTokenIterator() {
             iteratorList = new ArrayList<>();
             for (var graph : regularGraphList) {
                 iteratorList.add(graph.iterator());
             }
         }
 
-        private Iterator(List<RegularGraph.Iterator> iteratorList) {
+        private SingleTokenIterator(List<RegularGraph.Iterator> iteratorList) {
             this.iteratorList = iteratorList;
         }
 
@@ -127,17 +133,17 @@ public class RegularTokenSet {
             return result;
         }
 
-        public Iterator clone() {
+        public SingleTokenIterator clone() {
             ArrayList<RegularGraph.Iterator> newIteratorList = new ArrayList<>();
             for (var graphIterator : iteratorList) {
                 newIteratorList.add(graphIterator.clone());
             }
-            return new Iterator(newIteratorList);
+            return new SingleTokenIterator(newIteratorList);
         }
     }
 
-    public Iterator iterator() {
-        return new Iterator();
+    public SingleTokenIterator iterator() {
+        return new SingleTokenIterator();
     }
 
     public LinkedList<String> match(char[] input) {
@@ -149,7 +155,7 @@ public class RegularTokenSet {
         return tokenName;
     }
 
-    private HashSet<MatchInfo> matchLongest(char[] input, Iterator iterator, int cur) {
+    private HashSet<MatchInfo> matchLongest(char[] input, SingleTokenIterator iterator, int cur) {
         if (cur == input.length) {
             return new HashSet<>();
         }
@@ -197,6 +203,118 @@ public class RegularTokenSet {
 
     public LinkedList<MatchInfo> matchLongest(String input) {
         return matchLongest(input.toCharArray());
+    }
+
+    public class StreamIterator {
+        private final int leftIndex, limitIndex;
+        private final ByteBuffer buffer;
+        private int curIndex = -1;
+        private static class IteratorInfo {
+            final SingleTokenIterator singleIterator;
+            final int beginIndex;
+
+            public IteratorInfo(SingleTokenIterator singleIterator, int beginIndex) {
+                this.singleIterator = singleIterator;
+                this.beginIndex = beginIndex;
+            }
+        }
+        private LinkedList<IteratorInfo> iterators = new LinkedList<>();
+
+        private StreamIterator(int leftIndex, int limitIndex, ByteBuffer buffer) {
+            this.leftIndex = leftIndex;
+            this.limitIndex = limitIndex;
+            this.buffer = buffer;
+            this.curIndex = leftIndex;
+            this.iterators.add(new IteratorInfo(
+                    new SingleTokenIterator(), this.curIndex
+            ));
+        }
+
+        protected void next(char ch) {
+            var newIterators = new LinkedList<IteratorInfo>();
+            for (var info : iterators) {
+                //newIterators.add(new IteratorInfo(iter, info.beginIndex));
+                var nextIter = info.singleIterator.clone();
+                nextIter.next(ch);
+                newIterators.add(new IteratorInfo(nextIter, info.beginIndex));
+            }
+            iterators = newIterators;
+            ++curIndex;
+            if (iterators.isEmpty()) {
+                iterators.add(new IteratorInfo(new SingleTokenIterator(), curIndex));
+            }
+        }
+
+        public boolean next() {
+            if (curIndex >= limitIndex) {
+                return false;
+            }
+            // absolute get
+            char ch = (char) buffer.get(curIndex);
+            next(ch);
+            return true;
+        }
+
+        private static class IteratorMatchInfo {
+            final String tokenName;
+            final int beginIndex;
+
+            public IteratorMatchInfo(String tokenName, int beginIndex) {
+                this.tokenName = tokenName;
+                this.beginIndex = beginIndex;
+            }
+        }
+        public LinkedList<Token> getMatched() {
+            LinkedList<IteratorMatchInfo> candidates = new LinkedList<>();
+            int maxLength = 0;
+            for (var info : iterators) {
+                var singleIter = info.singleIterator;
+                for (var graphIter : singleIter.mightMatch()) {
+                    if (maxLength < graphIter.length) {
+                        candidates.clear();
+                        maxLength = graphIter.length;
+                        candidates.add(new IteratorMatchInfo(graphIter.tokenName, info.beginIndex));
+                    } else if (maxLength == graphIter.length) {
+                        candidates.add(new IteratorMatchInfo(graphIter.tokenName, info.beginIndex));
+                    } else {
+                        // do nothing
+                    }
+                }
+            }
+            LinkedList<Token> result = new LinkedList<>();
+            for (var info : candidates) {
+                byte[] matchedChar = new byte[curIndex - info.beginIndex];
+                // relative get
+                buffer.position(info.beginIndex).get(matchedChar, 0, curIndex - info.beginIndex);
+                DecafToken token = null;
+                try {
+                    token = DecafTokenFactory.getInstance().makeToken(
+                            info.tokenName,
+                            new String(matchedChar)
+                            );
+                    if (token.isMatched()) {
+                        result.add(token);
+                    }
+                } catch (UndefinedTokenException ignore) {
+
+                }
+            }
+            if (!result.isEmpty()) {
+                //iterators.clear();
+                iterators.add(new IteratorInfo(new SingleTokenIterator(), curIndex));
+            }
+            return result;
+        }
+
+        public void acceptMatched() {
+            iterators.clear();
+            iterators.add(new IteratorInfo(new SingleTokenIterator(), curIndex));
+        }
+    }
+
+
+    public StreamIterator streamIterator(int leftIndex, int limitIndex, ByteBuffer buffer) {
+        return new StreamIterator(leftIndex, limitIndex, buffer);
     }
 
     private static Map.Entry<String, String> parseMappingLine(String line) {

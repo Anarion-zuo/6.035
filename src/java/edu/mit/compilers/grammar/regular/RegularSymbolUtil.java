@@ -633,4 +633,10 @@ public class RegularSymbolUtil {
             return graph;
         }
     }
+
+    private static final RegularSymbolUtil instance = new RegularSymbolUtil();
+
+    public static RegularSymbolUtil getInstance() {
+        return instance;
+    }
 }

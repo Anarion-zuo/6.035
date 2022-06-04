@@ -1,7 +1,11 @@
 package edu.mit.compilers.grammar.token.decaf;
 
+import java.util.HashSet;
+import java.util.List;
+
 public class StringLiteral extends DecafToken {
     private String textWithoutEscape;
+    private static HashSet<Character> unAllowedCharacters = new HashSet<>(List.of('\"', '\'', '?'));
 
     private static String transformEscape(String input) {
         StringBuilder builder = new StringBuilder();
@@ -35,10 +39,10 @@ public class StringLiteral extends DecafToken {
             return "mismatched quotes in string literal";
         }
         for (int i = 1; i < matchedText.length() - 1; ++i) {
-            if (matchedText.charAt(i) == '\"') {
+            if (unAllowedCharacters.contains(matchedText.charAt(i))) {
                 if (matchedText.charAt(i - 1) != '\\') {
                     matched = false;
-                    return "mismatched quotes in string literal";
+                    return String.format("unexpected char 0x%x", (int) matchedText.charAt(i));
                 }
             }
         }
@@ -48,10 +52,12 @@ public class StringLiteral extends DecafToken {
     }
 
     @Override
-    public String getText() {
-        if (!matched) {
-            return "STRINGLITERAL: ";
-        }
-        return "STRINGLITERAL " + getMatchedLiteral();
+    protected String getTokenName() {
+        return "STRINGLITERAL";
+    }
+
+    @Override
+    protected String getTokenAttributeContent() {
+        return matchedText;
     }
 }

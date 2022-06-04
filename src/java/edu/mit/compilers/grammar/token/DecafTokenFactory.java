@@ -1,6 +1,11 @@
 package edu.mit.compilers.grammar.token;
 
 import com.google.common.base.CaseFormat;
+import edu.mit.compilers.grammar.token.decaf.DecafToken;
+import edu.mit.compilers.grammar.token.decaf.UndefinedTokenException;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public class DecafTokenFactory {
     private static DecafTokenFactory instance = new DecafTokenFactory();
@@ -17,7 +22,7 @@ public class DecafTokenFactory {
         Class clazz = null;
         try {
             clazz = Class.forName("edu.mit.compilers.grammar.token.decaf." + tokenName);
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
             tokenName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, tokenName);
             try {
                 clazz = Class.forName("edu.mit.compilers.grammar.token.decaf." + tokenName);
@@ -28,8 +33,25 @@ public class DecafTokenFactory {
         return clazz;
     }
 
-//    public Token make(String tokenName) throws ClassNotFoundException {
-//        var clazz = Class.forName("edu.mit.compilers.grammar.token.decaf." + tokenName);
-//        clazz.getConstructor();
-//    }
+    public DecafToken makeToken(String tokenName, String matchedText) throws UndefinedTokenException {
+        var tokenClass = findClassByTokenName(tokenName);
+        Constructor<?> tokenConstructor = null;
+        try {
+            tokenConstructor = tokenClass.getConstructor(String.class);
+        } catch (NoSuchMethodException e) {
+            throw new UndefinedTokenException(tokenName);
+        }
+        DecafToken token = null;
+        try {
+            token = (DecafToken) tokenConstructor.newInstance(matchedText);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            token.afterMatching();
+        } catch (TokenMismatchException ignored) {
+
+        }
+        return token;
+    }
 }
