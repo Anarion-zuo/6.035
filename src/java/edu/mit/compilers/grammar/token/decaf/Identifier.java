@@ -9,7 +9,7 @@ public class Identifier extends DecafToken {
     }
 
     private static final HashSet<Character> unAllowedCharacters = new HashSet<>(List.of(
-            '+', '-', '*', '/', ',', ';', '?', '^', ' ', '\'', '\"', '\r', '\n', '.'
+            '+', '-', '*', '/', ',', ';', '?', '^', ' ', '\'', '\"', '\r', '\n', '.', '\\', '\t'
     ));
 
     @Override
@@ -29,8 +29,12 @@ public class Identifier extends DecafToken {
         }
         // the rest of the chars
         for (int i = 0; i < matchedText.length(); ++i) {
-            // not special char
+            // no special char
             if (unAllowedCharacters.contains(matchedText.charAt(i))) {
+                isIdentifier = false;
+                break;
+            }
+            if (!isUtf8Viewable(matchedText.charAt(i))) {
                 isIdentifier = false;
                 break;
             }
