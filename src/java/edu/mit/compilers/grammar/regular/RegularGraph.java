@@ -130,7 +130,7 @@ public class RegularGraph {
 
         public boolean hasNext() {
             moveNodesThroughEpsilon();
-            return !(nodes.size() == 1 && nodes.contains(dest));
+            return !(nodes.size() == 1 && nodes.contains(dest)) || invalid();
         }
 
         public boolean invalid() {
