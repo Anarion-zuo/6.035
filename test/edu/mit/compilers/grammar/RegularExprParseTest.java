@@ -218,6 +218,14 @@ public class RegularExprParseTest {
     }
 
     @Test
+    public void pairEscapeTest() {
+        contructionTestTemplate("\"[^\"]*\"", "\"abc\"", true);
+        contructionTestTemplate("\"[^\"]*\"", "\"\"", true);
+        contructionTestTemplate("\"([^\"]|\\\")*\"", "\"a\\\"\"", true);
+        contructionTestTemplate("\"([^\"]|\\\")*\"", "\"that had just walked in.  \\\"Hey,\\\" he says, \\\"aren\\'t you a string?\\\"\"", true);
+    }
+
+    @Test
     public void wildcardTest() {
         contructionTestTemplate(".", "a", true);
         contructionTestTemplate(".", "b", true);
