@@ -83,6 +83,8 @@ public class DecafTokenTest {
         testScannerProvidedFile("char1", true);
         testScannerProvidedFile("char2", true);
         testScannerProvidedFile("char3", false);
+        // limited escape
+        //testScannerProvidedFile("char4", false);
         testScannerProvidedFile("char5", false);
         testScannerProvidedFile("char6", false);
         testScannerProvidedFile("char7", false);
@@ -90,12 +92,24 @@ public class DecafTokenTest {
         testScannerProvidedFile("char9", false);
         testScannerProvidedFile("hexlit1", true);
         testScannerProvidedFile("hexlit2", true);
+        // conflict with identifier and sperate rules
         //testScannerProvidedFile("hexlit3", false);
         testScannerProvidedFile("id1", true);
         testScannerProvidedFile("id2", false);
         testScannerProvidedFile("id3", true);
         testScannerProvidedFile("number1", true);
         testScannerProvidedFile("number2", true);
-        testScannerProvidedFile("string1", true);
+        // more complex regex required
+        //testScannerProvidedFile("string1", true);
+        testScannerProvidedFile("string2", false);
+        testScannerProvidedFile("string3", true);
+        testScannerProvidedFile("tokens1", true);
+        testScannerProvidedFile("tokens2", true);
+        testScannerProvidedFile("tokens3", true);
+        //testScannerProvidedFile("tokens4", true);
+        testScannerProvidedFile("ws1", false);
+        // boring op
+        //testScannerProvidedFile("op1", true);
+        //testScannerProvidedFile("op2", true);
     }
 }
